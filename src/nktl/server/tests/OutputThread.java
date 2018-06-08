@@ -1,4 +1,4 @@
-package sewer;
+package nktl.server.tests;
 
 import javafx.scene.control.TextArea;
 
@@ -7,13 +7,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class OutputThread {
+class OutputThread {
 
     private InputStream is;
     private TextArea output_area;
     private Thread thread;
 
-    public OutputThread(TextArea output_area, InputStream is){
+    OutputThread(TextArea output_area, InputStream is){
         this.is = is;
         this.output_area = output_area;
         thread = new Thread(this::run);
@@ -32,12 +32,10 @@ public class OutputThread {
     }
 
 
-    public void stop() {
+    void stop() {
         try {
             if (thread != null)
                 thread.interrupt();
-        } catch (Exception e) {
-
         } finally {
             try {
                 is.close();

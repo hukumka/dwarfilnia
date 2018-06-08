@@ -1,4 +1,4 @@
-package test;
+package nktl.server.tests;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -6,27 +6,28 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import sewer.InputThread;
-import sewer.OutputThread;
+import nktl.server.MinecraftProcess;
 
 import java.io.IOException;
 
 public class MainCraft extends Application {
-    static String full_launch_command = "java -jar mcs_1.12.2.jar nogui";
 
-    TextArea output_area = new TextArea();
-    TextField input_field = new TextField();
+    private static String full_launch_command = "java -jar mcs_1.12.2.jar nogui";
 
-    InputThread user_input;
-    OutputThread server_output;
-    Process process;
+    private TextArea output_area = new TextArea();
+    private TextField input_field = new TextField();
+
+    private MinecraftProcess minecraft;
+    private InputThread user_input;
+    private OutputThread server_output;
 
     @Override
     public void init() {
         try {
-            process = Runtime.getRuntime().exec(full_launch_command);
-            user_input = new InputThread(input_field, process.getOutputStream());
-            server_output = new OutputThread(output_area, process.getInputStream());
+            minecraft = new MinecraftProcess(full_launch_command);
+
+            user_input = new InputThread(input_field, minecraft);
+            server_output = new OutputThread(output_area, minecraft.getInputStream());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -34,8 +35,7 @@ public class MainCraft extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
-
+    public void start(Stage stage){
         // Панелька
         BorderPane root = new BorderPane();
         root.setCenter(output_area);
@@ -52,12 +52,12 @@ public class MainCraft extends Application {
     public void stop() {
         try {
             if (user_input != null){
-                user_input.write("stop");
+                user_input.write("/stop");
             }
             if (server_output != null)
                 server_output.stop();
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 }
