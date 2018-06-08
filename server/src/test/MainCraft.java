@@ -1,4 +1,4 @@
-package sewer;
+package test;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -6,6 +6,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import sewer.InputThread;
+import sewer.OutputThread;
 
 import java.io.IOException;
 

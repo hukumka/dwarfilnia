@@ -13,7 +13,7 @@ public class OutputThread {
     private TextArea output_area;
     private Thread thread;
 
-    OutputThread(TextArea output_area, InputStream is){
+    public OutputThread(TextArea output_area, InputStream is){
         this.is = is;
         this.output_area = output_area;
         thread = new Thread(this::run);
