@@ -11,6 +11,14 @@ public class Vec3i {
         this.z = z;
     }
 
+    public Vec3i add(int x, int y, int z){
+        return new Vec3i(x + this.x, y + this.y, z + this.z);
+    }
+
+    public Vec3i add(Vec3i other){
+        return new Vec3i(x + other.x, y + other.y, z + other.z);
+    }
+
     public Vec3i copy(){
         return new Vec3i(x, y, z);
     }
