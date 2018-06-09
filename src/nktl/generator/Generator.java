@@ -3,7 +3,6 @@ package nktl.generator;
 import nktl.math.RangeInt;
 import nktl.math.geom.Vec3i;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Random;
 
