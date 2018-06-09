@@ -45,9 +45,9 @@ public class DwarfMap {
 
     private Vec3i coordinates(int mapPos) {
         int z = mapPos/layerSize;
-        mapPos -= z;
+        mapPos -= z*layerSize;
         int y = mapPos/dx;
-        int x = mapPos - y;
+        int x = mapPos - y*dx;
         return new Vec3i(x, y, z);
     }
 
@@ -72,7 +72,7 @@ public class DwarfMap {
                 level);
     }
 
-    public boolean hasBlocksAroundAtLevel(Vec3i pos) {
+    public boolean hasBlocksAroundAtLevel(Vec3i pos, Generator.Direction direct) {
 
         Vec3i[] surroundings = {
                 new Vec3i(pos.x+1, pos.y, pos.z),
@@ -80,9 +80,22 @@ public class DwarfMap {
                 new Vec3i(pos.x, pos.y+1, pos.z),
                 new Vec3i(pos.x, pos.y-1, pos.z)
         };
+        switch (direct) {
+            // Тут блэт индексы внимательно
+            case NORTH:
+                surroundings[1] = null; break;
+            case SOUTH:
+                surroundings[0] = null; break;
+            case EAST:
+                surroundings[3] = null; break;
+            case WEST:
+                surroundings[2] = null; break;
+        }
+
         boolean hasBlock = false;
 
         for (Vec3i v : surroundings) {
+            if (v == null) continue;
             if (this.has(v) && this.get(v) != null){
                 hasBlock = true;
                 break;
