@@ -4,6 +4,7 @@ import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
 import nktl.writer.RMIClient;
 import nktl.writer.blocks.Corridor;
+import nktl.writer.blocks.VerticalLadder;
 import nktl.writer.blocks.Wall;
 
 
@@ -21,6 +22,8 @@ public class TestBlocks {
             new Wall().placeAt(process, new Vec3i(10, 100, 0));
             new Wall().placeAt(process, new Vec3i(10, 100, 5));
             new Wall().placeAt(process, new Vec3i(10, 100, 10));
+            new VerticalLadder().placeAt(process, new Vec3i(15, 100, 5));
+
 
         }catch(Exception e){
             e.printStackTrace();

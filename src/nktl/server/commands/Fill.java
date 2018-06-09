@@ -2,7 +2,7 @@ package nktl.server.commands;
 
 import nktl.math.geom.Vec3i;
 
-public class Fill implements Command{
+public class Fill extends Command{
     private Vec3i from;
     private Vec3i to;
 
