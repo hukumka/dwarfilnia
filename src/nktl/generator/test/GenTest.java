@@ -24,8 +24,8 @@ public class GenTest extends Application {
     public void init() throws Exception {
         Generator generator = new Generator();
         generator
-                .setSeed(45825243)
                 .setOneWayProbability(0.66666)
+                .setSeed(45825243)
                 .setLoopProbability(0.2)
                 .setMaxLenBeforeTurn(5);
         DwarfMap dm = generator.generateMap(100, 100, 1);
