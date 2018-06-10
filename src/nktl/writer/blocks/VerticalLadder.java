@@ -41,19 +41,19 @@ public class VerticalLadder implements DwarfBlock {
                  "minecraft:air"
          ).runIn(process);
          // make ladder
-        String data = null;
+        int data = 0;
         switch (direction){
             case NORTH:
-                data = "2";
+                data = 2;
                 break;
             case SOUTH:
-                data = "3";
+                data = 3;
                 break;
             case WEST:
-                data = "4";
+                data = 4;
                 break;
             case EAST:
-                data = "5";
+                data = 5;
                 break;
         }
         new Fill(
