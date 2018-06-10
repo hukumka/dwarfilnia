@@ -74,6 +74,7 @@ public class Generator {
     private long seed = 0;
     private double loopProbability = 0.5;
     private int maxLenBeforeTurn = 5;
+    private int minLenBeforeTurn = 2;
     private double
             threshold_2_way,
             threshold_3_way;
@@ -81,9 +82,7 @@ public class Generator {
 
     public Generator(){
         setRandomSeed();
-        try {
-            setOneWayProbability(0.7);
-        } catch (Exception e) {e.printStackTrace();}
+        setWayNumRelation(100, 30, 8);
     }
 
     // PUBLIC
@@ -100,22 +99,27 @@ public class Generator {
         return this;
     }
 
-    public Generator setOneWayProbability(double probability) throws GeneratorException {
-        if (probability < 0 || probability > 1)
-            throw new GeneratorException("Wrong one way probability : " + probability);
-
-        generateThresholds(probability/(1 - probability));
-        return this;
-    }
-
     public Generator setSeed(long seed) {
         this.seed = seed;
         this.random.setSeed(seed);
         return this;
     }
 
-    public Generator setMaxLenBeforeTurn(int length){
-        this.maxLenBeforeTurn = length;
+    public Generator setWayNumRelation(int oneWay, int twoWays, int threeWays){
+        int all = oneWay + twoWays + threeWays;
+        threshold_2_way = ((double)oneWay)/all;
+        threshold_3_way = ((double)oneWay + twoWays)/all;
+        return this;
+    }
+
+    public Generator setLenBeforeTurn(int minLen, int maxLen){
+        if (minLen > maxLen) {
+            int temp = minLen;
+            minLen = maxLen;
+            maxLen = temp;
+        }
+        this.minLenBeforeTurn = minLen;
+        this.maxLenBeforeTurn = maxLen;
         return this;
     }
 
@@ -148,13 +152,17 @@ public class Generator {
 
     private void generateLevel(DwarfMap map, int level) throws GeneratorException {
         Way startWay = new Way(map.getRandomPosition(level, random), Direction.NORTH);
-
+        map.setPointAsGenBounds(startWay);
         LinkedList<Way> ways = new LinkedList<>();
         ways.add(startWay);
         map.createCubeAt(startWay);
 
-        while (!ways.isEmpty()) {
-            ways = genNewWays(map, ways);
+        while (!ways.isEmpty() && !map.genBoundsMatchMax()) {
+            if (!ways.isEmpty())
+                ways = genNewWays(map, ways);
+            else {
+
+            }
         }
     }
 
@@ -209,12 +217,6 @@ public class Generator {
 
     private double random(){
         return random.nextDouble();
-    }
-
-    private void generateThresholds(double b){
-        double a = 1./(1 + 2*b + b*b);
-        threshold_2_way = a*b + a*b*b;
-        threshold_3_way = threshold_2_way + a*b;
     }
 
 

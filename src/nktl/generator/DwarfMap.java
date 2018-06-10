@@ -17,6 +17,13 @@ public class DwarfMap {
     int dx, dy, dz;
 
     public int layerSize;
+    DwarfCube lastNorthExpander = null,
+                lastEastExpander = null,
+                lastSouthExpander = null,
+                lastWestExpander = null;
+
+    RangeInt genBoundsX = new RangeInt();
+    RangeInt genBoundsY = new RangeInt();
 
     DwarfMap(Vec3i dimensions){
         this.dx = dimensions.x;
@@ -52,6 +59,21 @@ public class DwarfMap {
     }
 
 
+    public void addPointToBounds(Vec3i pos){
+        genBoundsX.add(pos.x);
+        genBoundsY.add(pos.y);
+    }
+
+    public void setPointAsGenBounds(Vec3i pos){
+        genBoundsX.set(pos.x, pos.x);
+        genBoundsY.set(pos.y, pos.y);
+    }
+
+    public boolean genBoundsMatchMax(){
+        return genBoundsX.equals(rangeX) &&
+                genBoundsY.equals(rangeY);
+    }
+
     // Геты
     public DwarfCube get(Vec3i pos){
         return map[inMapPosition(pos)];
@@ -62,7 +84,16 @@ public class DwarfMap {
     }
 
     public void createCubeAt(Vec3i pos){
-        map[inMapPosition(pos)] = new DwarfCube();
+        DwarfCube theNewOne;
+        map[inMapPosition(pos)] = theNewOne = new DwarfCube();
+        theNewOne.position.copy();
+
+        if (!genBoundsX.has(pos.x) || !genBoundsY.has(pos.y)) {
+            if (pos.x < genBoundsX.min())
+                lastSouthExpander = theNewOne;
+        }
+
+        addPointToBounds(pos);
     }
 
     public Vec3i getRandomPosition(int level, Random random) throws GeneratorException {
@@ -115,4 +146,6 @@ public class DwarfMap {
         }
         return cubeList;
     }
+
+
 }

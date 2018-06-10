@@ -24,20 +24,26 @@ public class GenTest extends Application {
     public void init() throws Exception {
         Generator generator = new Generator();
         generator
-                .setOneWayProbability(0.66666)
+                .setWayNumRelation(100, 30, 10)
                 .setSeed(45825243)
+                //.setSeed((long) (Math.random()*2*Long.MAX_VALUE - Long.MAX_VALUE))
                 .setLoopProbability(0.2)
-                .setMaxLenBeforeTurn(5);
+                .setLenBeforeTurn(2, 5);
         DwarfMap dm = generator.generateMap(100, 100, 1);
         cubeList = dm.toCubeList();
     }
 
     @Override
     public void start(Stage stage) throws Exception {
+        int mult = 10;
+        int w = 100;
+        int h = 100;
+
+
         Pane root = new Pane();
         Canvas canvas = new Canvas();
-        canvas.setWidth(500);
-        canvas.setHeight(500);
+        canvas.setWidth(w * mult);
+        canvas.setHeight(h * mult);
         canvas.setLayoutX(0);
         canvas.setLayoutY(0);
         root.getChildren().add(canvas);
@@ -48,14 +54,14 @@ public class GenTest extends Application {
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         g.setFill(Color.GHOSTWHITE);
         for (DwarfCube cube : cubeList) if (cube.getPosition().z == 0){
-            double x = 5*cube.getPosition().x;
-            double y = 5*cube.getPosition().y;
-            g.fillRect(x, y, 5, 5);
+            double x = mult*cube.getPosition().x;
+            double y = mult*cube.getPosition().y;
+            g.fillRect(x, y, mult, mult);
         }
 
         stage.setScene(new Scene(root));
-        stage.setWidth(800);
-        stage.setHeight(600);
+        stage.setWidth(1080);
+        stage.setHeight(1080);
         stage.show();
     }
 }
