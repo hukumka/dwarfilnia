@@ -20,6 +20,15 @@ public class TestBlocks {
             new SewerTurningCorridor(3)
                     .placeAt(process, new Vec3i(0, 100, -5));
 
+            new SewerThreeWayCorridor(0)
+                    .placeAt(process, new Vec3i(0, 105, 0));
+            new SewerThreeWayCorridor(1)
+                    .placeAt(process, new Vec3i(5, 105, 0));
+            new SewerThreeWayCorridor(2)
+                    .placeAt(process, new Vec3i(5, 105, -5));
+            new SewerThreeWayCorridor(3)
+                    .placeAt(process, new Vec3i(0, 105, -5));
+
         }catch(Exception e){
             e.printStackTrace();
         }
