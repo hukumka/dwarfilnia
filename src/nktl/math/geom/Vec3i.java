@@ -13,6 +13,10 @@ public class Vec3i {
         this.z = z;
     }
 
+    public Vec3i(Vec3i v){
+        copy(v);
+    }
+
     public Vec3i plus(int x, int y, int z){
         return new Vec3i(x + this.x, y + this.y, z + this.z);
     }
@@ -33,6 +37,12 @@ public class Vec3i {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    public void copy(Vec3i v){
+        x = v.x;
+        y = v.y;
+        z = v.z;
     }
 
     public Vec3d unit(){
