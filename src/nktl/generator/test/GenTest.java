@@ -9,15 +9,14 @@ import javafx.scene.control.TabPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import nktl.generator.DwarfCube;
+import nktl.generator.DwarfList;
 import nktl.generator.DwarfMap;
 import nktl.generator.Generator;
 import nktl.math.geom.Vec3i;
 
-import java.util.LinkedList;
-
 public class GenTest extends Application {
 
-    LinkedList<DwarfCube> cubeList;
+    DwarfList cubeList;
 
     int width = 40;
     int height = 40;
@@ -46,7 +45,6 @@ public class GenTest extends Application {
                 .setLenBeforeTurn(3, 5);
         DwarfMap dm = generator.generateMap(width, height, depth, ladders);
         cubeList = dm.toCubeList();
-        System.out.println(cubeList.size());
     }
 
     @Override
@@ -73,7 +71,7 @@ public class GenTest extends Application {
         }
 
 
-        for (DwarfCube cube : cubeList){
+        for (DwarfCube cube : cubeList.get5x5()){
             int level = cube.getPosition().z;
             int numWays = 0;
             if (cube.directionHas(DwarfCube.DIRECTION_NORTH_BIT)) ++numWays;
