@@ -11,10 +11,9 @@ public class TestMap {
     public static void main(String[] args){
         try {
             Generator generator = new Generator()
-                    .setOneWayProbability(0.66666)
                     .setSeed(45825249)
                     .setLoopProbability(0.2)
-                    .setMaxLenBeforeTurn(5);
+                    .setLenBeforeTurn(2, 5);
             DwarfMap dm = generator.generateMap(100, 100, 1);
 
             MapWriter writer = new MapWriter()

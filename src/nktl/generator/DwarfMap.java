@@ -1,6 +1,7 @@
 package nktl.generator;
 
 import nktl.math.RangeInt;
+import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 
 import java.util.LinkedList;
@@ -17,6 +18,13 @@ public class DwarfMap {
     int dx, dy, dz;
 
     public int layerSize;
+    DwarfCube lastNorthExpander = null,
+                lastEastExpander = null,
+                lastSouthExpander = null,
+                lastWestExpander = null;
+
+    RangeInt genBoundsX = new RangeInt();
+    RangeInt genBoundsY = new RangeInt();
 
     DwarfMap(Vec3i dimensions){
         this.dx = dimensions.x;
@@ -52,6 +60,21 @@ public class DwarfMap {
     }
 
 
+    public void addPointToBounds(Vec3i pos){
+        genBoundsX.add(pos.x);
+        genBoundsY.add(pos.y);
+    }
+
+    public void setPointAsGenBounds(Vec3i pos){
+        genBoundsX.set(pos.x, pos.x);
+        genBoundsY.set(pos.y, pos.y);
+    }
+
+    public boolean genBoundsMatchMax(){
+        return genBoundsX.equals(rangeX) &&
+                genBoundsY.equals(rangeY);
+    }
+
     // Геты
     public DwarfCube get(Vec3i pos){
         return map[inMapPosition(pos)];
@@ -61,8 +84,29 @@ public class DwarfMap {
         return map[inMapPosition(new Vec3i(x, y, z))];
     }
 
-    public void createCubeAt(Vec3i pos){
-        map[inMapPosition(pos)] = new DwarfCube();
+    public void createCubeAt(Vec3i pos) {
+        createCubeAt(pos, false);
+    }
+
+    public void createCubeAt(Vec3i pos, boolean asGenBounds){
+        DwarfCube theNewOne;
+        map[inMapPosition(pos)] = theNewOne = new DwarfCube(pos);
+
+        if (asGenBounds) {
+            lastWestExpander = lastNorthExpander =
+                            lastEastExpander = lastSouthExpander = theNewOne;
+        } else
+        if (!genBoundsX.has(pos.x) || !genBoundsY.has(pos.y)) {
+            if (pos.x < genBoundsX.min())
+                lastSouthExpander = theNewOne;
+            else if (pos.x > genBoundsX.max())
+                lastNorthExpander = theNewOne;
+            if (pos.y < genBoundsY.min())
+                lastWestExpander = theNewOne;
+            else if (pos.y > genBoundsY.max())
+                lastEastExpander = theNewOne;
+        }
+        addPointToBounds(pos);
     }
 
     public Vec3i getRandomPosition(int level, Random random) throws GeneratorException {
@@ -72,7 +116,7 @@ public class DwarfMap {
                 level);
     }
 
-    public boolean hasBlocksAroundAtLevel(Vec3i pos, Generator.Direction direct) {
+    public boolean hasBlocksAroundAtLevel(Vec3i pos, Direction direct) {
 
         Vec3i[] surroundings = {
                 new Vec3i(pos.x+1, pos.y, pos.z),
@@ -109,10 +153,29 @@ public class DwarfMap {
         LinkedList<DwarfCube> cubeList = new LinkedList<>();
         for (int i = 0; i < map.length; i++) {
             if (map[i] != null){
-                map[i].position = coordinates(i);
                 cubeList.add(map[i]);
             }
         }
         return cubeList;
+    }
+
+    boolean hasNeighbourAt(DwarfCube cube, Direction dir){
+        Vec3i pos = new Vec3i(cube.position);
+        switch (dir){
+            case NORTH: ++pos.x; break;
+            case SOUTH: --pos.x; break;
+            case EAST:  ++pos.y; break;
+            case WEST:  --pos.y; break;
+        }
+        return this.has(pos) && get(pos) != null;
+    }
+
+    void setCubeTypes(){
+        for (DwarfCube cube : map) {
+            if (hasNeighbourAt(cube, Direction.NORTH)) cube.addDirBit(DwarfCube.DIRECTION_NORTH_BIT);
+            if (hasNeighbourAt(cube, Direction.SOUTH)) cube.addDirBit(DwarfCube.DIRECTION_SOUTH_BIT);
+            if (hasNeighbourAt(cube, Direction.EAST)) cube.addDirBit(DwarfCube.DIRECTION_EAST_BIT);
+            if (hasNeighbourAt(cube, Direction.WEST)) cube.addDirBit(DwarfCube.DIRECTION_WEST_BIT);
+        }
     }
 }

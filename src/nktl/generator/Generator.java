@@ -1,6 +1,6 @@
 package nktl.generator;
 
-import nktl.math.RangeInt;
+import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 
 import java.util.LinkedList;
@@ -8,36 +8,6 @@ import java.util.Random;
 
 public class Generator {
     
-    enum Direction {
-        NORTH, SOUTH, EAST, WEST;
-
-        Direction getLeft() {
-            switch (this) {
-                case NORTH:
-                    return WEST;
-                case WEST:
-                    return SOUTH;
-                case SOUTH:
-                    return EAST;
-                default:
-                    return NORTH;
-            }
-        }
-
-        Direction getRight() {
-            switch (this) {
-                case NORTH:
-                    return EAST;
-                case EAST:
-                    return SOUTH;
-                case SOUTH:
-                    return WEST;
-                default:
-                    return NORTH;
-            }
-        }
-    }
-
     static class Way extends Vec3i{
         Direction dir = Direction.NORTH;
 
@@ -74,6 +44,7 @@ public class Generator {
     private long seed = 0;
     private double loopProbability = 0.5;
     private int maxLenBeforeTurn = 5;
+    private int minLenBeforeTurn = 3;
     private double
             threshold_2_way,
             threshold_3_way;
@@ -81,9 +52,7 @@ public class Generator {
 
     public Generator(){
         setRandomSeed();
-        try {
-            setOneWayProbability(0.7);
-        } catch (Exception e) {e.printStackTrace();}
+        setWayNumRelation(100, 30, 8);
     }
 
     // PUBLIC
@@ -100,22 +69,27 @@ public class Generator {
         return this;
     }
 
-    public Generator setOneWayProbability(double probability) throws GeneratorException {
-        if (probability < 0 || probability > 1)
-            throw new GeneratorException("Wrong one way probability : " + probability);
-
-        generateThresholds(probability/(1 - probability));
-        return this;
-    }
-
     public Generator setSeed(long seed) {
         this.seed = seed;
         this.random.setSeed(seed);
         return this;
     }
 
-    public Generator setMaxLenBeforeTurn(int length){
-        this.maxLenBeforeTurn = length;
+    public Generator setWayNumRelation(int oneWay, int twoWays, int threeWays){
+        int all = oneWay + twoWays + threeWays;
+        threshold_2_way = ((double)oneWay)/all;
+        threshold_3_way = ((double)oneWay + twoWays)/all;
+        return this;
+    }
+
+    public Generator setLenBeforeTurn(int minLen, int maxLen){
+        if (minLen > maxLen) {
+            int temp = minLen;
+            minLen = maxLen;
+            maxLen = temp;
+        }
+        this.minLenBeforeTurn = minLen;
+        this.maxLenBeforeTurn = maxLen;
         return this;
     }
 
@@ -126,6 +100,7 @@ public class Generator {
         for (int i = 0; i < layers; i++) {
             generateLevel(map, i);
         }
+        map.setCubeTypes();
         return map;
     }
 
@@ -148,13 +123,27 @@ public class Generator {
 
     private void generateLevel(DwarfMap map, int level) throws GeneratorException {
         Way startWay = new Way(map.getRandomPosition(level, random), Direction.NORTH);
-
+        map.setPointAsGenBounds(startWay);
         LinkedList<Way> ways = new LinkedList<>();
         ways.add(startWay);
         map.createCubeAt(startWay);
 
-        while (!ways.isEmpty()) {
-            ways = genNewWays(map, ways);
+        while (!ways.isEmpty() || !map.genBoundsMatchMax()) {
+            if (!ways.isEmpty())
+                ways = genNewWays(map, ways);
+            else {
+
+                if (map.genBoundsX.max() < map.rangeX.max() && map.lastNorthExpander!= null)
+                    ways.add(new Way(map.lastNorthExpander.position, Direction.NORTH));
+                if (map.genBoundsY.max() < map.rangeY.max() && map.lastEastExpander!= null)
+                    ways.add(new Way(map.lastEastExpander.position, Direction.EAST));
+                if (map.genBoundsX.min() > map.rangeX.min() && map.lastSouthExpander!= null)
+                    ways.add(new Way(map.lastSouthExpander.position, Direction.SOUTH));
+                if (map.genBoundsY.min() > map.rangeY.min() && map.lastWestExpander!= null)
+                    ways.add(new Way(map.lastWestExpander.position, Direction.WEST));
+                if (ways.isEmpty()) break;
+                ways = genNewWays(map, ways);
+            }
         }
     }
 
@@ -185,7 +174,8 @@ public class Generator {
     }
 
     private Way generateDaWay(DwarfMap map, Way way) {
-        int numBlocks = 1 + (int) (random() * (maxLenBeforeTurn - 1));
+        int minLen = minLenBeforeTurn - 1;
+        int numBlocks = minLen + (int) (random() * (maxLenBeforeTurn - minLen));
 
         for (int i = 0; i < numBlocks; i++) {
             //System.out.println("Direction - " + way.dir + ". Incrementing position...");
@@ -209,12 +199,6 @@ public class Generator {
 
     private double random(){
         return random.nextDouble();
-    }
-
-    private void generateThresholds(double b){
-        double a = 1./(1 + 2*b + b*b);
-        threshold_2_way = a*b + a*b*b;
-        threshold_3_way = threshold_2_way + a*b;
     }
 
 

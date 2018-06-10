@@ -35,16 +35,6 @@ public class Vec3i {
         this.z = z;
     }
 
-    /**
-     * create vector rotated around Z axis counterclockwise
-     * @param ax: axis x coordinate
-     * @param az: axis y coordinate
-     * @return rotated vector
-     */
-    public Vec3i rotateAroundY90(int ax, int az){
-        return new Vec3i(ax + (z - az), y, az + (ax - x));
-    }
-
     public Vec3d unit(){
         double length = length();
         return new Vec3d(x/length, y/length, z/length);
@@ -59,8 +49,6 @@ public class Vec3i {
         }
         return new Vec3i(0, 0, 0);
     }
-
-
 
     @Override
     public boolean equals(Object other){
