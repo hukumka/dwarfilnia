@@ -132,15 +132,15 @@ public class Generator {
             if (!ways.isEmpty())
                 ways = genNewWays(map, ways);
             else {
-
-                if (map.genBoundsX.max() < map.rangeX.max() && map.lastNorthExpander!= null)
-                    ways.add(new Way(map.lastNorthExpander.position, Direction.NORTH));
-                if (map.genBoundsY.max() < map.rangeY.max() && map.lastEastExpander!= null)
+                if (map.genBoundsX.max() < map.rangeX.max() && map.lastEastExpander!= null)
                     ways.add(new Way(map.lastEastExpander.position, Direction.EAST));
-                if (map.genBoundsX.min() > map.rangeX.min() && map.lastSouthExpander!= null)
-                    ways.add(new Way(map.lastSouthExpander.position, Direction.SOUTH));
-                if (map.genBoundsY.min() > map.rangeY.min() && map.lastWestExpander!= null)
+                if (map.genBoundsY.max() < map.rangeY.max() && map.lastNorthExpander!= null)
+                    ways.add(new Way(map.lastNorthExpander.position, Direction.NORTH));
+
+                if (map.genBoundsX.min() > map.rangeX.min() && map.lastWestExpander!= null)
                     ways.add(new Way(map.lastWestExpander.position, Direction.WEST));
+                if (map.genBoundsY.min() > map.rangeY.min() && map.lastSouthExpander!= null)
+                    ways.add(new Way(map.lastSouthExpander.position, Direction.SOUTH));
                 if (ways.isEmpty()) break;
                 ways = genNewWays(map, ways);
             }
@@ -180,10 +180,10 @@ public class Generator {
         for (int i = 0; i < numBlocks; i++) {
             //System.out.println("Direction - " + way.dir + ". Incrementing position...");
             switch (way.dir) {
-                case NORTH: way.x++; break;
-                case SOUTH: way.x--; break;
-                case EAST: way.y++; break;
-                case WEST: way.y--; break;
+                case NORTH: way.y++; break;
+                case SOUTH: way.y--; break;
+                case EAST: way.x++; break;
+                case WEST: way.x--; break;
             }
             if (!map.has(way)) return null;
             //System.out.println("Map has new position.");
