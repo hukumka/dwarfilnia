@@ -137,6 +137,7 @@ public class Generator {
                                 dirVal < 0.5 ? Direction.SOUTH :
                                         dirVal < 0.75 ? Direction.EAST : Direction.WEST);
                 if (ways.isEmpty()) map.setPointAsGenBounds(way);
+                way.z = level;
                 ways.add(way);
                 DwarfCube dc = cube.copy();
                 dc.position.z = level;

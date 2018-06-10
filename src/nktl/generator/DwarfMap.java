@@ -4,7 +4,6 @@ import nktl.math.RangeInt;
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 
-import java.util.LinkedList;
 import java.util.Random;
 
 public class DwarfMap {
@@ -158,14 +157,22 @@ public class DwarfMap {
         return hasBlock;
     }
 
-    public LinkedList<DwarfCube> toCubeList(){
-        LinkedList<DwarfCube> cubeList = new LinkedList<>();
-        for (int i = 0; i < map.length; i++) {
-            if (map[i] != null){
-                cubeList.add(map[i]);
+    public DwarfList toCubeList(){
+        DwarfList list = new DwarfList();
+        for (DwarfCube cube : map) {
+            if (cube != null) {
+                switch (cube.getType()) {
+                    case DwarfCube.TYPE_VERTICAL_LADDER:
+                    case DwarfCube.TYPE_DIAGONAL_LADDER:
+                        list.get7x7().add(cube);
+                        break;
+                    default:
+                        list.get5x5().add(cube);
+                        break;
+                }
             }
         }
-        return cubeList;
+        return list;
     }
 
     boolean hasNeighbourAt(DwarfCube cube, Direction dir){

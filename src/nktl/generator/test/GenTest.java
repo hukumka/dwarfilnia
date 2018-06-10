@@ -4,22 +4,23 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.Pane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import nktl.generator.DwarfCube;
+import nktl.generator.DwarfList;
 import nktl.generator.DwarfMap;
 import nktl.generator.Generator;
 import nktl.math.geom.Vec3i;
 
-import java.util.LinkedList;
-
 public class GenTest extends Application {
 
-    LinkedList<DwarfCube> cubeList;
+    DwarfList cubeList;
 
-    int width = 50;
-    int height = 50;
+    int width = 40;
+    int height = 40;
+    int depth = 3;
 
     @Override
     public void init() throws Exception {
@@ -42,9 +43,8 @@ public class GenTest extends Application {
                 //.setSeed((long) (Math.random()*2*Long.MAX_VALUE - Long.MAX_VALUE))
                 .setLoopProbability(0.2)
                 .setLenBeforeTurn(3, 5);
-        DwarfMap dm = generator.generateMap(width, height, 1, ladders);
+        DwarfMap dm = generator.generateMap(width, height, depth, ladders);
         cubeList = dm.toCubeList();
-        System.out.println(cubeList.size());
     }
 
     @Override
@@ -53,19 +53,26 @@ public class GenTest extends Application {
         int w = width;
         int h = height;
 
-        Pane root = new Pane();
-        Canvas canvas = new Canvas();
-        canvas.setWidth(w * mult);
-        canvas.setHeight(h * mult);
-        canvas.setLayoutX(0);
-        canvas.setLayoutY(0);
-        root.getChildren().add(canvas);
+        Canvas[] cs = new Canvas[depth];
+        GraphicsContext[] g = new GraphicsContext[depth];
 
-        GraphicsContext g = canvas.getGraphicsContext2D();
-        g.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        g.setFill(Color.WHITE);
-        g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        for (DwarfCube cube : cubeList) if (cube.getPosition().z == 0){
+        TabPane root = new TabPane();
+        for (int i = 0; i < depth; i++) {
+            cs[i] = new Canvas();
+            g[i] = cs[i].getGraphicsContext2D();
+            Tab tab = new Tab("Level " + i, cs[i]);
+            tab.setClosable(false);
+            root.getTabs().add(tab);
+            cs[i].setWidth(w * mult);
+            cs[i].setHeight(h * mult);
+            cs[i].setLayoutX(0);
+            cs[i].setLayoutY(0);
+            g[i].clearRect(0, 0, cs[i].getWidth(), cs[i].getHeight());
+        }
+
+
+        for (DwarfCube cube : cubeList.get5x5()){
+            int level = cube.getPosition().z;
             int numWays = 0;
             if (cube.directionHas(DwarfCube.DIRECTION_NORTH_BIT)) ++numWays;
             if (cube.directionHas(DwarfCube.DIRECTION_SOUTH_BIT)) ++numWays;
@@ -74,24 +81,24 @@ public class GenTest extends Application {
 
             if (cube.typeIs(DwarfCube.TYPE_TUNNEL)) {
                 switch (numWays){
-                    case 1: g.setFill(Color.RED); break;
-                    case 2: g.setFill(Color.YELLOW); break;
-                    case 3: g.setFill(Color.GREEN); break;
-                    case 4: g.setFill(Color.BLUE); break;
-                    default: g.setFill(Color.BLACK); break;
+                    case 1: g[level].setFill(Color.RED); break;
+                    case 2: g[level].setFill(Color.YELLOW); break;
+                    case 3: g[level].setFill(Color.GREEN); break;
+                    case 4: g[level].setFill(Color.BLUE); break;
+                    default: g[level].setFill(Color.BLACK); break;
                 }
             } else if (cube.typeIs(DwarfCube.TYPE_VERTICAL_LADDER)){
-                g.setFill(Color.LIGHTGRAY);
+                g[level].setFill(Color.LIGHTGRAY);
             }
 
             double x = mult*cube.getPosition().x;
             double y = mult*cube.getPosition().y;
-            g.fillRect(x, y, mult, mult);
+            g[level].fillRect(x, y, mult, mult);
         }
 
         stage.setScene(new Scene(root));
-        stage.setWidth(canvas.getWidth() + 80);
-        stage.setHeight(canvas.getHeight() + 80);
+        stage.setWidth(width*mult + 80);
+        stage.setHeight(height*mult + 80);
         stage.show();
     }
 }
