@@ -28,7 +28,7 @@ public class GenTest extends Application {
                 //.setSeed(45825243)
                 .setSeed((long) (Math.random()*2*Long.MAX_VALUE - Long.MAX_VALUE))
                 .setLoopProbability(0.2)
-                .setLenBeforeTurn(3, 5);
+                .setLenBeforeTurn(3, 6);
         DwarfMap dm = generator.generateMap(100, 100, 1);
         cubeList = dm.toCubeList();
         System.out.println(cubeList.size());
