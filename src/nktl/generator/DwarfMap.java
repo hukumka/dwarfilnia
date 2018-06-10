@@ -159,5 +159,23 @@ public class DwarfMap {
         return cubeList;
     }
 
+    boolean hasNeighbourAt(DwarfCube cube, Direction dir){
+        Vec3i pos = new Vec3i(cube.position);
+        switch (dir){
+            case NORTH: ++pos.x; break;
+            case SOUTH: --pos.x; break;
+            case EAST:  ++pos.y; break;
+            case WEST:  --pos.y; break;
+        }
+        return this.has(pos) && get(pos) != null;
+    }
 
+    void setCubeTypes(){
+        for (DwarfCube cube : map) {
+            if (hasNeighbourAt(cube, Direction.NORTH)) cube.addDirBit(DwarfCube.DIRECTION_NORTH_BIT);
+            if (hasNeighbourAt(cube, Direction.SOUTH)) cube.addDirBit(DwarfCube.DIRECTION_SOUTH_BIT);
+            if (hasNeighbourAt(cube, Direction.EAST)) cube.addDirBit(DwarfCube.DIRECTION_EAST_BIT);
+            if (hasNeighbourAt(cube, Direction.WEST)) cube.addDirBit(DwarfCube.DIRECTION_WEST_BIT);
+        }
+    }
 }

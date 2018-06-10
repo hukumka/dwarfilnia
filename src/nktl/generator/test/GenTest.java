@@ -10,15 +10,15 @@ import javafx.stage.Stage;
 import nktl.generator.DwarfCube;
 import nktl.generator.DwarfMap;
 import nktl.generator.Generator;
-import nktl.generator.GeneratorException;
-import nktl.math.RangeInt;
 
 import java.util.LinkedList;
-import java.util.Random;
 
 public class GenTest extends Application {
 
     LinkedList<DwarfCube> cubeList;
+
+    int width = 100;
+    int height = 100;
 
     @Override
     public void init() throws Exception {
@@ -29,7 +29,7 @@ public class GenTest extends Application {
                 .setSeed((long) (Math.random()*2*Long.MAX_VALUE - Long.MAX_VALUE))
                 .setLoopProbability(0.2)
                 .setLenBeforeTurn(3, 6);
-        DwarfMap dm = generator.generateMap(100, 100, 1);
+        DwarfMap dm = generator.generateMap(width, height, 1);
         cubeList = dm.toCubeList();
         System.out.println(cubeList.size());
     }
@@ -37,8 +37,8 @@ public class GenTest extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         int mult = 10;
-        int w = 100;
-        int h = 100;
+        int w = width;
+        int h = height;
 
 
         Pane root = new Pane();
@@ -61,8 +61,8 @@ public class GenTest extends Application {
         }
 
         stage.setScene(new Scene(root));
-        stage.setWidth(1080);
-        stage.setHeight(1080);
+        stage.setWidth(canvas.getWidth() + 80);
+        stage.setHeight(canvas.getHeight() + 80);
         stage.show();
     }
 }

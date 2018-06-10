@@ -1,6 +1,5 @@
 package nktl.generator;
 
-import nktl.math.RangeInt;
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 
@@ -101,6 +100,7 @@ public class Generator {
         for (int i = 0; i < layers; i++) {
             generateLevel(map, i);
         }
+        map.setCubeTypes();
         return map;
     }
 
