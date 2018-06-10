@@ -43,7 +43,13 @@ public class DwarfMap {
     }
 
     public boolean has(Vec3i pos){
-        return rangeX.has(pos.x) && rangeY.has(pos.y) && rangeZ.has(pos.z);
+        boolean has = rangeX.has(pos.x) && rangeY.has(pos.y) && rangeZ.has(pos.z);
+        if (has) {
+            DwarfCube cube = get(pos);
+            if (cube != null && cube.typeIs(DwarfCube.TYPE_EXCLUDED))
+                has = false;
+        }
+        return has;
     }
 
     // Позиция
@@ -145,7 +151,6 @@ public class DwarfMap {
                 break;
             }
         }
-
         return hasBlock;
     }
 

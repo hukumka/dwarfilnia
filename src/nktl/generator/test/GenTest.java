@@ -28,7 +28,7 @@ public class GenTest extends Application {
                 //.setSeed(45825243)
                 .setSeed((long) (Math.random()*2*Long.MAX_VALUE - Long.MAX_VALUE))
                 .setLoopProbability(0.2)
-                .setLenBeforeTurn(3, 6);
+                .setLenBeforeTurn(3, 5);
         DwarfMap dm = generator.generateMap(width, height, 1);
         cubeList = dm.toCubeList();
         System.out.println(cubeList.size());
@@ -51,10 +51,23 @@ public class GenTest extends Application {
 
         GraphicsContext g = canvas.getGraphicsContext2D();
         g.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        g.setFill(Color.GREEN);
+        g.setFill(Color.WHITE);
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        g.setFill(Color.GHOSTWHITE);
         for (DwarfCube cube : cubeList) if (cube.getPosition().z == 0){
+            int numWays = 0;
+            if (cube.directionHas(DwarfCube.DIRECTION_NORTH_BIT)) ++numWays;
+            if (cube.directionHas(DwarfCube.DIRECTION_SOUTH_BIT)) ++numWays;
+            if (cube.directionHas(DwarfCube.DIRECTION_EAST_BIT)) ++numWays;
+            if (cube.directionHas(DwarfCube.DIRECTION_WEST_BIT)) ++numWays;
+
+            switch (numWays){
+                case 1: g.setFill(Color.RED); break;
+                case 2: g.setFill(Color.YELLOW); break;
+                case 3: g.setFill(Color.GREEN); break;
+                case 4: g.setFill(Color.BLUE); break;
+                default: g.setFill(Color.BLACK); break;
+            }
+
             double x = mult*cube.getPosition().x;
             double y = mult*cube.getPosition().y;
             g.fillRect(x, y, mult, mult);

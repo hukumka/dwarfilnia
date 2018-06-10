@@ -5,6 +5,7 @@ import nktl.math.geom.Vec3i;
 public class DwarfCube {
 
     public static final int
+            TYPE_EXCLUDED = -1,
             TYPE_TUNNEL = 0,
             TYPE_COLLECTOR = 1,
             TYPE_VERTICAL_LADDER = 2,
@@ -31,7 +32,7 @@ public class DwarfCube {
     }
 
     public void addDirBit(int bit){
-        this.direction &= bit;
+        this.direction |= bit;
     }
 
     public void removeDirBit(int bit){
@@ -54,5 +55,9 @@ public class DwarfCube {
 
     public Vec3i getPosition() {
         return position;
+    }
+
+    public int getDirection() {
+        return direction;
     }
 }
