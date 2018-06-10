@@ -90,6 +90,10 @@ public class DwarfMap {
         return map[inMapPosition(new Vec3i(x, y, z))];
     }
 
+    public void placeCube(DwarfCube cube){
+        map[inMapPosition(cube.position)] = cube;
+    }
+
     public void createCubeAt(Vec3i pos) {
         createCubeAt(pos, false);
     }
