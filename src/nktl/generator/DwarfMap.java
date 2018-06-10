@@ -171,7 +171,7 @@ public class DwarfMap {
     }
 
     void setCubeTypes(){
-        for (DwarfCube cube : map) {
+        for (DwarfCube cube : map) if (cube != null) {
             if (hasNeighbourAt(cube, Direction.NORTH)) cube.addDirBit(DwarfCube.DIRECTION_NORTH_BIT);
             if (hasNeighbourAt(cube, Direction.SOUTH)) cube.addDirBit(DwarfCube.DIRECTION_SOUTH_BIT);
             if (hasNeighbourAt(cube, Direction.EAST)) cube.addDirBit(DwarfCube.DIRECTION_EAST_BIT);
