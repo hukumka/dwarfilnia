@@ -11,11 +11,11 @@ import nktl.writer.blocks.DwarfBlock;
 import java.io.IOException;
 
 public class MapWriter {
-    Vec3i offset = null;
-    MinecraftRMIProcess process = null;
-    String userPlayerName = null;
-    int sleepBetweenChunks = 1000;
-    int sleepBetweenCubes = 50;
+    private Vec3i offset = null;
+    private MinecraftRMIProcess process = null;
+    private String userPlayerName = null;
+    private int sleepBetweenChunks = 1000;
+    private int sleepBetweenCubes = 50;
 
     public MapWriter setProcess(MinecraftRMIProcess process){
         this.process = process;
@@ -49,7 +49,7 @@ public class MapWriter {
     }
 
 
-    void writeChunk(ChuckMap.Chunk chunk) throws IOException, InterruptedException{
+    private void writeChunk(ChuckMap.Chunk chunk) throws IOException, InterruptedException{
         System.out.println("Writing chunk " +  chunk.getId().toString());
         Vec3i center = mapToWorld(chunk.getCenter());
         if(userPlayerName != null){
@@ -82,7 +82,7 @@ public class MapWriter {
         return this;
     }
 
-    Vec3i mapToWorld(Vec3i mapCoordinates){
+    private Vec3i mapToWorld(Vec3i mapCoordinates){
         return offset.plus(mapCoordinates.x*5, mapCoordinates.z*5, mapCoordinates.y*5);
     }
 
