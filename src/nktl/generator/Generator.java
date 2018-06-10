@@ -94,11 +94,16 @@ public class Generator {
     }
 
     public DwarfMap generateMap(int dx, int dy, int layers) throws GeneratorException{
+        System.out.println("Generating map with no start points...");
+        return generateMap(dx, dy, layers, new DwarfCube[0]);
+    }
+
+    public DwarfMap generateMap(int dx, int dy, int layers, DwarfCube... startCubes) throws GeneratorException{
         if (dx <= 0 || dy <= 0 || layers <= 0) throw new GeneratorException();
         DwarfMap map = new DwarfMap(new Vec3i(dx, dy, layers));
 
         for (int i = 0; i < layers; i++) {
-            generateLevel(map, i);
+            generateLevel(map, i, startCubes);
         }
         map.setCubeTypes();
         return map;
@@ -121,12 +126,29 @@ public class Generator {
         }
     }
 
-    private void generateLevel(DwarfMap map, int level) throws GeneratorException {
-        Way startWay = new Way(map.getRandomPosition(level, random), Direction.NORTH);
-        map.setPointAsGenBounds(startWay);
+    private void generateLevel(DwarfMap map, int level, DwarfCube... startCubes) throws GeneratorException {
         LinkedList<Way> ways = new LinkedList<>();
-        ways.add(startWay);
-        map.createCubeAt(startWay);
+        if (startCubes != null && startCubes.length > 0){
+            for (DwarfCube cube : startCubes){
+                if (!map.has(cube.position)) continue;
+                double dirVal = random();
+                Way way = new Way(cube.position,
+                        dirVal < 0.25 ? Direction.NORTH :
+                                dirVal < 0.5 ? Direction.SOUTH :
+                                        dirVal < 0.75 ? Direction.EAST : Direction.WEST);
+                if (ways.isEmpty()) map.setPointAsGenBounds(way);
+                ways.add(way);
+                DwarfCube dc = cube.copy();
+                dc.position.z = level;
+                map.placeCube(dc);
+            }
+        }
+        if (ways.isEmpty()){
+            Way startWay = new Way(map.getRandomPosition(level, random), Direction.NORTH);
+            map.setPointAsGenBounds(startWay);
+            ways.add(startWay);
+            map.createCubeAt(startWay);
+        }
 
         while (!ways.isEmpty() || !map.genBoundsMatchMax()) {
             if (!ways.isEmpty())

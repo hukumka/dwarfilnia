@@ -18,10 +18,10 @@ public class DwarfCube {
             DIRECTION_EAST_BIT  = 0b100,
             DIRECTION_WEST_BIT  = 0b1000,
 
-            EXTRA_DIRECTION_NORTH_BIT  = 0b10000,
-            EXTRA_DIRECTION_SOUTH_BIT  = 0b100000,
-            EXTRA_DIRECTION_EAST_BIT   = 0b1000000,
-            EXTRA_DIRECTION_WEST_BIT   = 0b10000000;
+            DATA_NORTH_BIT  = 0b10000,
+            DATA_SOUTH_BIT  = 0b100000,
+            DATA_EAST_BIT   = 0b1000000,
+            DATA_WEST_BIT   = 0b10000000;
 
     public boolean typeIs(int type){
         return this.type == type;
@@ -43,9 +43,9 @@ public class DwarfCube {
     int direction = 0;
     Vec3i position = new Vec3i();
 
-    DwarfCube(){}
+    public DwarfCube(){}
 
-    DwarfCube(Vec3i position){
+    public DwarfCube(Vec3i position){
         this.position.copy(position);
     }
 
@@ -59,5 +59,17 @@ public class DwarfCube {
 
     public int getDirection() {
         return direction;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public DwarfCube copy(){
+        DwarfCube dc = new DwarfCube();
+        dc.position.copy(this.position);
+        dc.type = this.type;
+        dc.direction = this.direction;
+        return dc;
     }
 }

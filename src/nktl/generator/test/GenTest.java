@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import nktl.generator.DwarfCube;
 import nktl.generator.DwarfMap;
 import nktl.generator.Generator;
+import nktl.math.geom.Vec3i;
 
 import java.util.LinkedList;
 
@@ -23,13 +24,25 @@ public class GenTest extends Application {
     @Override
     public void init() throws Exception {
         Generator generator = new Generator();
+
+        DwarfCube[] ladders = {
+                new DwarfCube(new Vec3i(15, 15, 0)),
+                new DwarfCube(new Vec3i(25, 40, 0)),
+                new DwarfCube(new Vec3i(30, 10, 0))
+        };
+
+        for (DwarfCube ladder : ladders){
+            ladder.setType(DwarfCube.TYPE_VERTICAL_LADDER);
+            ladder.addDirBit(DwarfCube.DATA_NORTH_BIT);
+        }
+
         generator
                 .setWayNumRelation(100, 33, 9)
                 .setSeed(45825243)
                 //.setSeed((long) (Math.random()*2*Long.MAX_VALUE - Long.MAX_VALUE))
                 .setLoopProbability(0.2)
                 .setLenBeforeTurn(3, 5);
-        DwarfMap dm = generator.generateMap(width, height, 1);
+        DwarfMap dm = generator.generateMap(width, height, 1, ladders);
         cubeList = dm.toCubeList();
         System.out.println(cubeList.size());
     }
@@ -59,12 +72,16 @@ public class GenTest extends Application {
             if (cube.directionHas(DwarfCube.DIRECTION_EAST_BIT)) ++numWays;
             if (cube.directionHas(DwarfCube.DIRECTION_WEST_BIT)) ++numWays;
 
-            switch (numWays){
-                case 1: g.setFill(Color.RED); break;
-                case 2: g.setFill(Color.YELLOW); break;
-                case 3: g.setFill(Color.GREEN); break;
-                case 4: g.setFill(Color.BLUE); break;
-                default: g.setFill(Color.BLACK); break;
+            if (cube.typeIs(DwarfCube.TYPE_TUNNEL)) {
+                switch (numWays){
+                    case 1: g.setFill(Color.RED); break;
+                    case 2: g.setFill(Color.YELLOW); break;
+                    case 3: g.setFill(Color.GREEN); break;
+                    case 4: g.setFill(Color.BLUE); break;
+                    default: g.setFill(Color.BLACK); break;
+                }
+            } else if (cube.typeIs(DwarfCube.TYPE_VERTICAL_LADDER)){
+                g.setFill(Color.LIGHTGRAY);
             }
 
             double x = mult*cube.getPosition().x;
