@@ -27,6 +27,16 @@ public class MapWriter {
         return this;
     }
 
+    public MapWriter setSleepBetweenChunks(int milliseconds){
+        sleepBetweenChunks = milliseconds;
+        return this;
+    }
+
+    public MapWriter setSleepBetweenCubes(int milliseconds){
+        sleepBetweenCubes = milliseconds;
+        return this;
+    }
+
     public void writeMap(DwarfMap map) throws IOException {
         ChuckMap cm = new ChuckMap(map);
         try{
@@ -37,6 +47,7 @@ public class MapWriter {
             e.printStackTrace();
         }
     }
+
 
     void writeChunk(ChuckMap.Chunk chunk) throws IOException, InterruptedException{
         System.out.println("Writing chunk " +  chunk.getId().toString());
