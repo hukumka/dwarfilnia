@@ -103,13 +103,13 @@ public class DwarfMap {
                             lastEastExpander = lastSouthExpander = theNewOne;
         } else
         if (!genBoundsX.has(pos.x) || !genBoundsY.has(pos.y)) {
-            if (pos.x < genBoundsX.min())
-                lastSouthExpander = theNewOne;
-            else if (pos.x > genBoundsX.max())
-                lastNorthExpander = theNewOne;
             if (pos.y < genBoundsY.min())
-                lastWestExpander = theNewOne;
+                lastSouthExpander = theNewOne;
             else if (pos.y > genBoundsY.max())
+                lastNorthExpander = theNewOne;
+            if (pos.x < genBoundsX.min())
+                lastWestExpander = theNewOne;
+            else if (pos.x > genBoundsX.max())
                 lastEastExpander = theNewOne;
         }
         addPointToBounds(pos);
@@ -132,13 +132,13 @@ public class DwarfMap {
         };
         switch (direct) {
             // Тут блэт индексы внимательно
-            case NORTH:
-                surroundings[1] = null; break;
-            case SOUTH:
-                surroundings[0] = null; break;
             case EAST:
-                surroundings[3] = null; break;
+                surroundings[1] = null; break;
             case WEST:
+                surroundings[0] = null; break;
+            case NORTH:
+                surroundings[3] = null; break;
+            case SOUTH:
                 surroundings[2] = null; break;
         }
 
@@ -167,10 +167,10 @@ public class DwarfMap {
     boolean hasNeighbourAt(DwarfCube cube, Direction dir){
         Vec3i pos = new Vec3i(cube.position);
         switch (dir){
-            case NORTH: ++pos.x; break;
-            case SOUTH: --pos.x; break;
-            case EAST:  ++pos.y; break;
-            case WEST:  --pos.y; break;
+            case NORTH: ++pos.y; break;
+            case SOUTH: --pos.y; break;
+            case EAST:  ++pos.x; break;
+            case WEST:  --pos.x; break;
         }
         return this.has(pos) && get(pos) != null;
     }

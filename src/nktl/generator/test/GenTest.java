@@ -17,16 +17,16 @@ public class GenTest extends Application {
 
     LinkedList<DwarfCube> cubeList;
 
-    int width = 100;
-    int height = 100;
+    int width = 50;
+    int height = 50;
 
     @Override
     public void init() throws Exception {
         Generator generator = new Generator();
         generator
                 .setWayNumRelation(100, 33, 9)
-                //.setSeed(45825243)
-                .setSeed((long) (Math.random()*2*Long.MAX_VALUE - Long.MAX_VALUE))
+                .setSeed(45825243)
+                //.setSeed((long) (Math.random()*2*Long.MAX_VALUE - Long.MAX_VALUE))
                 .setLoopProbability(0.2)
                 .setLenBeforeTurn(3, 5);
         DwarfMap dm = generator.generateMap(width, height, 1);
@@ -39,7 +39,6 @@ public class GenTest extends Application {
         int mult = 10;
         int w = width;
         int h = height;
-
 
         Pane root = new Pane();
         Canvas canvas = new Canvas();
