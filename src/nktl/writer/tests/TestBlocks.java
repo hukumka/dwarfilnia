@@ -29,6 +29,11 @@ public class TestBlocks {
             new SewerThreeWayCorridor(3)
                     .placeAt(process, new Vec3i(0, 105, -5));
 
+            new SewerCrossingCorridor()
+                    .placeAt(process, new Vec3i(0, 110, 0));
+            new SewerTurningCorridor(0)
+                    .placeAt(process, new Vec3i(0, 110, 5));
+
         }catch(Exception e){
             e.printStackTrace();
         }
