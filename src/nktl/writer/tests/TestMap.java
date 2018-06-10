@@ -14,12 +14,12 @@ public class TestMap {
                     .setSeed(45825249)
                     .setLoopProbability(0.2)
                     .setLenBeforeTurn(2, 5);
-            DwarfMap dm = generator.generateMap(100, 100, 1);
+            DwarfMap dm = generator.generateMap(20, 20, 1);
 
             MapWriter writer = new MapWriter()
                     .setProcess(new RMIClient().getProcess())
                     .setUsedPlayer("hukumka")
-                    .setOffset(new Vec3i(0, 180, 0));
+                    .setOffset(new Vec3i(0, 160, 0));
 
             writer.writeMap(dm);
 

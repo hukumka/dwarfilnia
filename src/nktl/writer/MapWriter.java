@@ -64,7 +64,7 @@ public class MapWriter {
             DwarfBlock block = null;
             switch (c.getType()){
                 case 0:
-                    block = new Corridor();
+                    block = new Corridor().setData(c.getDirection());
                     break;
             }
             if(block != null){

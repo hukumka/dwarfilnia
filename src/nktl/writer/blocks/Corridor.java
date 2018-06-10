@@ -136,7 +136,7 @@ public class Corridor implements DwarfBlock{
             }
         }
 
-        for(Command c: commands){
+        for(Fill c: commands){
             process.write(c.toCommandString());
         }
     }
