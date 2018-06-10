@@ -4,6 +4,7 @@ import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
 import nktl.writer.RMIClient;
 import nktl.writer.blocks.Corridor;
+import nktl.writer.blocks.SewerStraitCorridor;
 import nktl.writer.blocks.VerticalLadder;
 import nktl.writer.blocks.Wall;
 
@@ -13,16 +14,10 @@ public class TestBlocks {
         try {
             MinecraftRMIProcess process = new RMIClient().getProcess();
 
-            new Wall().placeAt(process, new Vec3i(0, 100, 0));
-            new Wall().placeAt(process, new Vec3i(0, 100, 5));
-            new Wall().placeAt(process, new Vec3i(0, 100, 10));
-            new Corridor().placeAt(process, new Vec3i(5, 100, 0));
-            new Corridor().placeAt(process, new Vec3i(5, 100, 5));
-            new Corridor().placeAt(process, new Vec3i(5, 100, 10));
-            new Wall().placeAt(process, new Vec3i(10, 100, 0));
-            new Wall().placeAt(process, new Vec3i(10, 100, 5));
-            new Wall().placeAt(process, new Vec3i(10, 100, 10));
-            new VerticalLadder().placeAt(process, new Vec3i(15, 100, 5));
+            new SewerStraitCorridor(true)
+                    .placeAt(process, new Vec3i(0, 100, 0));
+            new SewerStraitCorridor(false)
+                    .placeAt(process, new Vec3i(10, 100, 0));
 
 
         }catch(Exception e){
