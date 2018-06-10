@@ -1,5 +1,7 @@
 package nktl.math.geom;
 
+import java.util.Objects;
+
 public class Vec3i {
     public int x, y, z;
 
@@ -46,6 +48,28 @@ public class Vec3i {
             case EAST: return new Vec3i(1, 0, 0);
         }
         return new Vec3i(0, 0, 0);
+    }
+
+    @Override
+    public boolean equals(Object other){
+        if(other == this){
+            return true;
+        }else if(other instanceof Vec3i) {
+            Vec3i o = (Vec3i) other;
+            return x == o.x && y == o.y && z == o.z;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(x, y, z);
+    }
+
+    @Override
+    public String toString(){
+        return String.format("Vec3i{%d, %d, %d}", x, y, z);
     }
 
     public double length(){

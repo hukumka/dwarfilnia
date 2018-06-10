@@ -2,12 +2,10 @@ package nktl.writer.tests;
 
 import nktl.generator.DwarfMap;
 import nktl.generator.Generator;
-import nktl.generator.GeneratorException;
 import nktl.math.geom.Vec3i;
 import nktl.writer.MapWriter;
 import nktl.writer.RMIClient;
 
-import java.io.IOException;
 
 public class TestMap {
     public static void main(String[] args){
@@ -21,7 +19,8 @@ public class TestMap {
 
             MapWriter writer = new MapWriter()
                     .setProcess(new RMIClient().getProcess())
-                    .setOffset(new Vec3i(0, 200, 0));
+                    .setUsedPlayer("hukumka")
+                    .setOffset(new Vec3i(0, 180, 0));
 
             writer.writeMap(dm);
 
