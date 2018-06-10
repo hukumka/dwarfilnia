@@ -18,7 +18,7 @@ public class Corridor implements DwarfBlock{
                 // create ceiling
                 new Fill(position.plus(0, 4, 0), position.plus(4, 4, 4), "minecraft:stonebrick"),
         };
-        for(var c: commands){
+        for(Command c: commands){
             process.write(c.toCommandString());
         }
     }

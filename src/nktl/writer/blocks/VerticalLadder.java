@@ -28,9 +28,9 @@ public class VerticalLadder implements DwarfBlock {
          ).runIn(process);
          // make column
          new Fill(
-                 position.plus(1, 0, 1),
-                 position.plus(3, 4, 3),
-                 "minecraft:stonebrick"
+                 position.plus(1, 1, 1),
+                 position.plus(3, 3, 3),
+                 "minecraft:stone"
          ).runIn(process);
 
          // make entrance

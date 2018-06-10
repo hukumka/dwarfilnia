@@ -19,6 +19,10 @@ public class Vec3i {
         return new Vec3i(x + other.x, y + other.y, z + other.z);
     }
 
+    public Vec3i mult(int k){
+        return new Vec3i(x*k, y*k, z*k);
+    }
+
     public Vec3i copy(){
         return new Vec3i(x, y, z);
     }
