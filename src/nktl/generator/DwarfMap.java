@@ -1,6 +1,7 @@
 package nktl.generator;
 
 import nktl.math.RangeInt;
+import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 
 import java.util.LinkedList;
@@ -83,16 +84,28 @@ public class DwarfMap {
         return map[inMapPosition(new Vec3i(x, y, z))];
     }
 
-    public void createCubeAt(Vec3i pos){
-        DwarfCube theNewOne;
-        map[inMapPosition(pos)] = theNewOne = new DwarfCube();
-        theNewOne.position.copy();
+    public void createCubeAt(Vec3i pos) {
+        createCubeAt(pos, false);
+    }
 
+    public void createCubeAt(Vec3i pos, boolean asGenBounds){
+        DwarfCube theNewOne;
+        map[inMapPosition(pos)] = theNewOne = new DwarfCube(pos);
+
+        if (asGenBounds) {
+            lastWestExpander = lastNorthExpander =
+                            lastEastExpander = lastSouthExpander = theNewOne;
+        } else
         if (!genBoundsX.has(pos.x) || !genBoundsY.has(pos.y)) {
             if (pos.x < genBoundsX.min())
                 lastSouthExpander = theNewOne;
+            else if (pos.x > genBoundsX.max())
+                lastNorthExpander = theNewOne;
+            if (pos.y < genBoundsY.min())
+                lastWestExpander = theNewOne;
+            else if (pos.y > genBoundsY.max())
+                lastEastExpander = theNewOne;
         }
-
         addPointToBounds(pos);
     }
 
@@ -103,7 +116,7 @@ public class DwarfMap {
                 level);
     }
 
-    public boolean hasBlocksAroundAtLevel(Vec3i pos, Generator.Direction direct) {
+    public boolean hasBlocksAroundAtLevel(Vec3i pos, Direction direct) {
 
         Vec3i[] surroundings = {
                 new Vec3i(pos.x+1, pos.y, pos.z),
@@ -140,7 +153,6 @@ public class DwarfMap {
         LinkedList<DwarfCube> cubeList = new LinkedList<>();
         for (int i = 0; i < map.length; i++) {
             if (map[i] != null){
-                map[i].position = coordinates(i);
                 cubeList.add(map[i]);
             }
         }

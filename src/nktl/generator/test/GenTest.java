@@ -24,13 +24,14 @@ public class GenTest extends Application {
     public void init() throws Exception {
         Generator generator = new Generator();
         generator
-                .setWayNumRelation(100, 30, 10)
-                .setSeed(45825243)
-                //.setSeed((long) (Math.random()*2*Long.MAX_VALUE - Long.MAX_VALUE))
+                .setWayNumRelation(100, 33, 9)
+                //.setSeed(45825243)
+                .setSeed((long) (Math.random()*2*Long.MAX_VALUE - Long.MAX_VALUE))
                 .setLoopProbability(0.2)
-                .setLenBeforeTurn(2, 5);
+                .setLenBeforeTurn(3, 5);
         DwarfMap dm = generator.generateMap(100, 100, 1);
         cubeList = dm.toCubeList();
+        System.out.println(cubeList.size());
     }
 
     @Override

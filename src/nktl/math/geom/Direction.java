@@ -5,7 +5,7 @@ import nktl.generator.Generator;
 public enum Direction {
     NORTH, SOUTH, EAST, WEST;
 
-    Direction getLeft() {
+    public Direction getLeft() {
         switch (this) {
             case NORTH:
                 return WEST;
@@ -18,7 +18,7 @@ public enum Direction {
         }
     }
 
-    Direction getRight() {
+    public Direction getRight() {
         switch (this) {
             case NORTH:
                 return EAST;
