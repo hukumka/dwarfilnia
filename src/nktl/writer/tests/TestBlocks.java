@@ -25,12 +25,10 @@ public class TestBlocks {
                     .setData(DwarfCube.DIRECTION_EAST_BIT | DwarfCube.DIRECTION_SOUTH_BIT)
                     .placeAt(process, new Vec3i(0, 110, 5));
 
-            new Corridor()
-                    .setData(0x3)
-                    .placeAt(process, new Vec3i(0, 100, 0));
-            new Corridor()
-                    .setData(0x1)
+            new VerticalLadder()
                     .placeAt(process, new Vec3i(0, 105, 0));
+            new VerticalLadder()
+                    .placeAt(process, new Vec3i(0, 110, 0));
 
         }catch(Exception e){
             e.printStackTrace();
