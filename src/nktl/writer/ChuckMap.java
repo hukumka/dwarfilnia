@@ -38,9 +38,9 @@ public class ChuckMap implements Iterable<ChuckMap.Chunk>{
 
     HashMap<Vec3i, Chunk> chucks;
 
-    public ChuckMap(DwarfMap map){
+    public ChuckMap(Iterable<DwarfCube> cubes){
         chucks = new HashMap<>();
-        for(DwarfCube c: map.toCubeList()){
+        for(DwarfCube c: cubes){
             addCube(c);
         }
     }

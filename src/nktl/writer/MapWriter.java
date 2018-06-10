@@ -1,12 +1,14 @@
 package nktl.writer;
 
 import nktl.generator.DwarfCube;
+import nktl.generator.DwarfList;
 import nktl.generator.DwarfMap;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
 import nktl.server.commands.TeleportPlayer;
 import nktl.writer.blocks.Corridor;
 import nktl.writer.blocks.DwarfBlock;
+import nktl.writer.blocks.VerticalLadder;
 
 import java.io.IOException;
 
@@ -38,8 +40,13 @@ public class MapWriter {
     }
 
     public void writeMap(DwarfMap map) throws IOException {
-        ChuckMap cm = new ChuckMap(map);
         try{
+            DwarfList list = map.toCubeList();
+            ChuckMap cm = new ChuckMap(list.get5x5());
+            for(ChuckMap.Chunk c: cm){
+                writeChunk(c);
+            }
+            cm = new ChuckMap(list.get7x7());
             for(ChuckMap.Chunk c: cm){
                 writeChunk(c);
             }
@@ -63,8 +70,12 @@ public class MapWriter {
         for(DwarfCube c: chunk.list()){
             DwarfBlock block = null;
             switch (c.getType()){
-                case 0:
+                case DwarfCube.TYPE_TUNNEL:
                     block = new Corridor().setData(c.getDirection());
+                    break;
+                case DwarfCube.TYPE_VERTICAL_LADDER:
+                    block = new VerticalLadder()
+                            .setWays(c.getDirection());
                     break;
             }
             if(block != null){
