@@ -125,6 +125,42 @@ public class DwarfMap {
                 level);
     }
 
+    public boolean hasVerticalLaddersAtCorners(Vec3i pos) {
+        Vec3i[] surroundings = {
+                new Vec3i(pos.x+1, pos.y+1, pos.z),
+                new Vec3i(pos.x+1, pos.y-1, pos.z),
+                new Vec3i(pos.x-1, pos.y+1, pos.z),
+                new Vec3i(pos.x-1, pos.y-1, pos.z)
+        };
+
+        boolean hasLadder = false;
+        for (Vec3i position : surroundings) {
+            if (!this.has(position)) continue;
+            DwarfCube cube = get(position);
+            if (cube != null && cube.typeIs(DwarfCube.TYPE_VERTICAL_LADDER)) {
+                hasLadder = true;
+                break;
+            }
+        }
+        return hasLadder;
+    }
+
+    public boolean hasBlockAtDirection(Vec3i pos, Direction dir){
+        Vec3i testPosition = pos.copy();
+        switch (dir) {
+            case NORTH:
+                testPosition.y++; break;
+            case SOUTH:
+                testPosition.y--; break;
+            case EAST:
+                testPosition.x++; break;
+            default:
+                testPosition.x--; break;
+        }
+        if (!this.has(testPosition)) return false;
+        return get(testPosition) != null;
+    }
+
     public boolean hasBlocksAroundAtLevel(Vec3i pos, Direction direct) {
 
         Vec3i[] surroundings = {
@@ -175,6 +211,18 @@ public class DwarfMap {
         return list;
     }
 
+    DwarfCube getNeighbourAt(DwarfCube cube, Direction dir){
+        Vec3i pos = new Vec3i(cube.position);
+        switch (dir){
+            case NORTH: ++pos.y; break;
+            case SOUTH: --pos.y; break;
+            case EAST:  ++pos.x; break;
+            case WEST:  --pos.x; break;
+        }
+        if (!this.has(pos)) return null;
+        return get(pos);
+    }
+
     boolean hasNeighbourAt(DwarfCube cube, Direction dir){
         Vec3i pos = new Vec3i(cube.position);
         switch (dir){
@@ -188,10 +236,21 @@ public class DwarfMap {
 
     void setCubeTypes(){
         for (DwarfCube cube : map) if (cube != null) {
-            if (hasNeighbourAt(cube, Direction.NORTH)) cube.addDirBit(DwarfCube.DIRECTION_NORTH_BIT);
-            if (hasNeighbourAt(cube, Direction.SOUTH)) cube.addDirBit(DwarfCube.DIRECTION_SOUTH_BIT);
-            if (hasNeighbourAt(cube, Direction.EAST)) cube.addDirBit(DwarfCube.DIRECTION_EAST_BIT);
-            if (hasNeighbourAt(cube, Direction.WEST)) cube.addDirBit(DwarfCube.DIRECTION_WEST_BIT);
+            if (cube.typeIs(DwarfCube.TYPE_DIAGONAL_LADDER))
+                continue;
+            setCubeTypeForDir(cube, Direction.NORTH);
+            setCubeTypeForDir(cube, Direction.SOUTH);
+            setCubeTypeForDir(cube, Direction.EAST);
+            setCubeTypeForDir(cube, Direction.WEST);
+        }
+    }
+
+    private void setCubeTypeForDir(DwarfCube cube, Direction direction){
+        DwarfCube neighbour = getNeighbourAt(cube, direction);
+        if (neighbour != null &&
+                (!neighbour.typeIs(DwarfCube.TYPE_DIAGONAL_LADDER) ||
+                        neighbour.enumDirection().isParallelTo(direction))) {
+            cube.addDirBit(DwarfCube.dirEnumToBit(direction));
         }
     }
 }
