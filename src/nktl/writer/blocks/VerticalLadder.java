@@ -90,11 +90,11 @@ public class VerticalLadder implements DwarfBlock {
             new Fill(position.plus(5, 1, 1), position.plus(5, 3, 3), "minecraft:air")
                     .runIn(process);
         }
-        if((ways&DwarfCube.DIRECTION_NORTH_BIT) > 0){
+        if((ways&DwarfCube.DIRECTION_SOUTH_BIT) > 0){
             new Fill(position.plus(1, 1, 5), position.plus(3, 3, 5), "minecraft:air")
                     .runIn(process);
         }
-        if((ways&DwarfCube.DIRECTION_SOUTH_BIT) > 0){
+        if((ways&DwarfCube.DIRECTION_NORTH_BIT) > 0){
             new Fill(position.plus(1, 1, -1), position.plus(3, 3, -1), "minecraft:air")
                     .runIn(process);
         }

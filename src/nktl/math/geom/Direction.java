@@ -33,11 +33,11 @@ public enum Direction {
         switch (this){
             case EAST:
                 return 0;
-            case NORTH:
+            case SOUTH:
                 return 1;
             case WEST:
                 return 2;
-            case SOUTH:
+            case NORTH:
                 return 3;
             default:
                 return 0;
