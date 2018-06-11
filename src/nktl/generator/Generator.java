@@ -18,17 +18,10 @@ public class Generator {
             this.dir = dir;
         }
 
-        Way getLeft(){
-            return new Way(this, this.dir.getLeft());
-        }
-
-        Way getRight(){
-            return new Way(this, this.dir.getRight());
-        }
-
-        Way getForward(){
-            return new Way(this, this.dir);
-        }
+        Way getLeft(){ return new Way(this, this.dir.getLeft()); }
+        Way getRight(){ return new Way(this, this.dir.getRight()); }
+        Way getFront(){ return new Way(this, this.dir); }
+        Way getBack() { return new Way(this, this.dir.getBack()); }
     }
 
     private static final byte
@@ -58,7 +51,6 @@ public class Generator {
     // PUBLIC
     public long setRandomSeed(){
         setSeed((long) (Math.random()*2*Long.MAX_VALUE));
-        random.setSeed(seed);
         return seed;
     }
 
@@ -131,11 +123,18 @@ public class Generator {
         if (startCubes != null && startCubes.length > 0){
             for (DwarfCube cube : startCubes){
                 if (!map.has(cube.position)) continue;
-                double dirVal = random();
-                Way way = new Way(cube.position,
-                        dirVal < 0.25 ? Direction.NORTH :
-                                dirVal < 0.5 ? Direction.SOUTH :
-                                        dirVal < 0.75 ? Direction.EAST : Direction.WEST);
+                Direction direction;
+                if (cube.typeIs(DwarfCube.TYPE_DIAGONAL_LADDER))
+                    direction = cube.enumDirection();
+                else if (cube.direction == 0) {
+                    double dirVal = random();
+                    direction =
+                            dirVal < 0.25 ? Direction.NORTH :
+                                    dirVal < 0.5 ? Direction.SOUTH :
+                                            dirVal < 0.75 ? Direction.EAST : Direction.WEST;
+                } else direction = cube.enumDirection();
+
+                Way way = new Way(cube.position, direction);
                 if (ways.isEmpty()) map.setPointAsGenBounds(way);
                 way.z = level;
                 ways.add(way);
@@ -152,9 +151,9 @@ public class Generator {
         }
 
         while (!ways.isEmpty() || !map.genBoundsMatchMax()) {
-            if (!ways.isEmpty())
+            if (!ways.isEmpty()) {
                 ways = genNewWays(map, ways);
-            else {
+            } else {
                 if (map.genBoundsX.max() < map.rangeX.max() && map.lastEastExpander!= null)
                     ways.add(new Way(map.lastEastExpander.position, Direction.EAST));
                 if (map.genBoundsY.max() < map.rangeY.max() && map.lastNorthExpander!= null)
@@ -173,21 +172,32 @@ public class Generator {
     private LinkedList<Way> genNewWays(DwarfMap map, LinkedList<Way> ways){
         LinkedList<Way> newWays = new LinkedList<>();
         for (Way way : ways) {
-            int combination = waysToGo();
             Way[] ws;
-            switch (combination) {
-                case LEFT: ws = new Way[]{way.getLeft()}; break;
-                case RIGHT: ws = new Way[]{way.getRight()}; break;
-                case FORWARD: ws = new Way[]{way.getForward()}; break;
-                case FORWARD_LEFT: ws = new Way[]{way.getForward(), way.getLeft()}; break;
-                case FORWARD_RIGHT: ws = new Way[]{way.getForward(), way.getRight()}; break;
-                case LEFT_RIGHT: ws = new Way[]{way.getLeft(), way.getRight()}; break;
-                default: ws = new Way[]{
-                        way.getLeft(), way.getRight(), way.getForward()
-                }; break;
+            DwarfCube cube = map.get(way);
+            if (cube.typeIs(DwarfCube.TYPE_DIAGONAL_LADDER)) {
+                Direction dir = cube.enumDirection();
+                boolean hasBlockInFront = map.hasBlockAtDirection(way, dir);
+                boolean hasBlockBehind = map.hasBlockAtDirection(way, dir.getBack());
+                ws = new Way[2];
+                if (!hasBlockInFront) ws[0] = way.getFront();
+                if (!hasBlockBehind) ws[1] = way.getBack();
+            } else {
+                int combination = waysToGo();
+                switch (combination) {
+                    case LEFT: ws = new Way[]{way.getLeft()}; break;
+                    case RIGHT: ws = new Way[]{way.getRight()}; break;
+                    case FORWARD: ws = new Way[]{way.getFront()}; break;
+                    case FORWARD_LEFT: ws = new Way[]{way.getFront(), way.getLeft()}; break;
+                    case FORWARD_RIGHT: ws = new Way[]{way.getFront(), way.getRight()}; break;
+                    case LEFT_RIGHT: ws = new Way[]{way.getLeft(), way.getRight()}; break;
+                    default: ws = new Way[]{
+                            way.getLeft(), way.getRight(), way.getFront()
+                    }; break;
+                }
             }
 
             for (Way w : ws) {
+                if (w == null) continue;
                 Way nextWay = generateDaWay(map, w);
                 if (nextWay != null) newWays.add(nextWay);
             }
@@ -199,6 +209,8 @@ public class Generator {
     private Way generateDaWay(DwarfMap map, Way way) {
         int minLen = minLenBeforeTurn - 1;
         int numBlocks = minLen + (int) (random() * (maxLenBeforeTurn - minLen));
+        if (map.get(way).getType() == DwarfCube.TYPE_VERTICAL_LADDER && numBlocks < 2)
+            numBlocks = 2;
 
         for (int i = 0; i < numBlocks; i++) {
             //System.out.println("Direction - " + way.dir + ". Incrementing position...");
@@ -210,6 +222,9 @@ public class Generator {
             }
             if (!map.has(way)) return null;
             //System.out.println("Map has new position.");
+            if (map.hasVerticalLaddersAtCorners(way))
+                return null;
+
             if (map.hasBlocksAroundAtLevel(way, way.dir)){
                 //System.out.println("Found block on the way.");
                 if (random() < loopProbability) map.createCubeAt(way);

@@ -1,5 +1,6 @@
 package nktl.generator;
 
+import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 
 public class DwarfCube {
@@ -71,5 +72,47 @@ public class DwarfCube {
         dc.type = this.type;
         dc.direction = this.direction;
         return dc;
+    }
+
+    public Direction enumDirection(){
+        boolean north = directionHas(DIRECTION_NORTH_BIT),
+                south = directionHas(DIRECTION_SOUTH_BIT),
+                east = directionHas(DIRECTION_EAST_BIT),
+                west = directionHas(DIRECTION_WEST_BIT);
+        boolean northAndSouth = north && south;
+        boolean eastAndWest = east && west;
+        if (northAndSouth){
+            if (eastAndWest) return Direction.NORTH;
+            if (east) return Direction.EAST;
+            if (west) return Direction.WEST;
+            return Direction.NORTH;
+        }
+        if (north) {
+            if (west && !east) return Direction.WEST;
+            return Direction.NORTH;
+        }
+        if (south) {
+            if (east && !west) return Direction.EAST;
+            return Direction.SOUTH;
+        }
+        if (east) return Direction.EAST;
+        if (west) return Direction.WEST;
+        return Direction.NORTH;
+    }
+
+    public static int dirEnumToBit(Direction direction){
+        switch (direction) {
+            case NORTH: return DIRECTION_NORTH_BIT;
+            case SOUTH: return DIRECTION_SOUTH_BIT;
+            case EAST: return DIRECTION_EAST_BIT;
+            default: return DIRECTION_WEST_BIT;
+        }
+    }
+
+    public static Direction dirBitToEnum(int bit){
+        if ((bit & DIRECTION_NORTH_BIT) > 0) return Direction.NORTH;
+        if ((bit & DIRECTION_EAST_BIT) > 0) return Direction.EAST;
+        if ((bit & DIRECTION_SOUTH_BIT) > 0) return Direction.SOUTH;
+        return Direction.WEST;
     }
 }

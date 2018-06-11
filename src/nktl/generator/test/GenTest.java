@@ -33,8 +33,7 @@ public class GenTest extends Application {
         };
 
         for (DwarfCube ladder : ladders){
-            ladder.setType(DwarfCube.TYPE_VERTICAL_LADDER);
-            ladder.addDirBit(DwarfCube.DATA_NORTH_BIT);
+            ladder.setType(DwarfCube.TYPE_DIAGONAL_LADDER);
         }
 
         generator
@@ -42,7 +41,7 @@ public class GenTest extends Application {
                 .setSeed(45825243)
                 //.setSeed((long) (Math.random()*2*Long.MAX_VALUE - Long.MAX_VALUE))
                 .setLoopProbability(0.2)
-                .setLenBeforeTurn(3, 5);
+                .setLenBeforeTurn(2, 5);
         DwarfMap dm = generator.generateMap(width, height, depth, ladders);
         cubeList = dm.toCubeList();
     }
@@ -68,37 +67,47 @@ public class GenTest extends Application {
             cs[i].setLayoutX(0);
             cs[i].setLayoutY(0);
             g[i].clearRect(0, 0, cs[i].getWidth(), cs[i].getHeight());
+            g[i].setFill(Color.WHITE);
+            g[i].fillRect(0, 0, cs[i].getWidth(), cs[i].getHeight());
         }
 
 
-        for (DwarfCube cube : cubeList.get5x5()){
-            int level = cube.getPosition().z;
-            int numWays = 0;
-            if (cube.directionHas(DwarfCube.DIRECTION_NORTH_BIT)) ++numWays;
-            if (cube.directionHas(DwarfCube.DIRECTION_SOUTH_BIT)) ++numWays;
-            if (cube.directionHas(DwarfCube.DIRECTION_EAST_BIT)) ++numWays;
-            if (cube.directionHas(DwarfCube.DIRECTION_WEST_BIT)) ++numWays;
+        for (DwarfCube cube : cubeList.get5x5())
+            drawCube(cube, g, mult);
+        for (DwarfCube cube : cubeList.get7x7())
+            drawCube(cube, g, mult);
 
-            if (cube.typeIs(DwarfCube.TYPE_TUNNEL)) {
-                switch (numWays){
-                    case 1: g[level].setFill(Color.RED); break;
-                    case 2: g[level].setFill(Color.YELLOW); break;
-                    case 3: g[level].setFill(Color.GREEN); break;
-                    case 4: g[level].setFill(Color.BLUE); break;
-                    default: g[level].setFill(Color.BLACK); break;
-                }
-            } else if (cube.typeIs(DwarfCube.TYPE_VERTICAL_LADDER)){
-                g[level].setFill(Color.LIGHTGRAY);
-            }
-
-            double x = mult*cube.getPosition().x;
-            double y = mult*cube.getPosition().y;
-            g[level].fillRect(x, y, mult, mult);
-        }
 
         stage.setScene(new Scene(root));
         stage.setWidth(width*mult + 80);
         stage.setHeight(height*mult + 80);
         stage.show();
+    }
+
+    void drawCube(DwarfCube cube, GraphicsContext[] g, int mult) {
+        int level = cube.getPosition().z;
+        int numWays = 0;
+        if (cube.directionHas(DwarfCube.DIRECTION_NORTH_BIT)) ++numWays;
+        if (cube.directionHas(DwarfCube.DIRECTION_SOUTH_BIT)) ++numWays;
+        if (cube.directionHas(DwarfCube.DIRECTION_EAST_BIT)) ++numWays;
+        if (cube.directionHas(DwarfCube.DIRECTION_WEST_BIT)) ++numWays;
+
+        if (cube.typeIs(DwarfCube.TYPE_TUNNEL)) {
+            switch (numWays){
+                case 1: g[level].setFill(Color.RED); break;
+                case 2: g[level].setFill(Color.YELLOW); break;
+                case 3: g[level].setFill(Color.GREEN); break;
+                case 4: g[level].setFill(Color.BLUE); break;
+                default: g[level].setFill(Color.BLACK); break;
+            }
+        } else if (cube.typeIs(DwarfCube.TYPE_VERTICAL_LADDER)){
+            g[level].setFill(Color.LIGHTGRAY);
+        } else if (cube.typeIs(DwarfCube.TYPE_DIAGONAL_LADDER)) {
+            g[level].setFill(Color.MAGENTA);
+        }
+
+        double x = mult*cube.getPosition().x;
+        double y = mult*cube.getPosition().y;
+        g[level].fillRect(x, y, mult, mult);
     }
 }
