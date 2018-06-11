@@ -30,4 +30,19 @@ public enum Direction {
                 return NORTH;
         }
     }
+
+    public int rotationCount(){
+        switch (this){
+            case EAST:
+                return 0;
+            case NORTH:
+                return 1;
+            case WEST:
+                return 2;
+            case SOUTH:
+                return 3;
+            default:
+                return 0;
+        }
+    }
 }

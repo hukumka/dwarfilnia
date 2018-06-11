@@ -1,6 +1,7 @@
 package nktl.writer.tests;
 
 import nktl.generator.DwarfCube;
+import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
 import nktl.writer.RMIClient;
@@ -12,23 +13,36 @@ public class TestBlocks {
         try {
             MinecraftRMIProcess process = new RMIClient().getProcess();
 
+            new Stairs()
+                    .setDirection(Direction.EAST)
+                    .placeAt(process, new Vec3i(20, 100, 0));
+            new Stairs()
+                    .setDirection(Direction.EAST)
+                    .placeAt(process, new Vec3i(20, 105, 0));
+            new Stairs()
+                    .setDirection(Direction.WEST)
+                    .placeAt(process, new Vec3i(20, 100, 5));
+            new Stairs()
+                    .setDirection(Direction.WEST)
+                    .placeAt(process, new Vec3i(20, 105, 5));
+            new Stairs()
+                    .setDirection(Direction.NORTH)
+                    .placeAt(process, new Vec3i(20, 100, 20));
+            new Stairs()
+                    .setDirection(Direction.NORTH)
+                    .placeAt(process, new Vec3i(20, 105, 20));
+            new Stairs()
+                    .setDirection(Direction.SOUTH)
+                    .placeAt(process, new Vec3i(25, 100, 20));
             new Corridor()
-                    .setData(DwarfCube.DIRECTION_EAST_BIT | DwarfCube.DIRECTION_NORTH_BIT)
-                    .placeAt(process, new Vec3i(0, 110, 0));
-            new Corridor()
-                    .setData(DwarfCube.DIRECTION_WEST_BIT | DwarfCube.DIRECTION_NORTH_BIT)
-                    .placeAt(process, new Vec3i(5, 110, 0));
-            new Corridor()
-                    .setData(DwarfCube.DIRECTION_WEST_BIT | DwarfCube.DIRECTION_SOUTH_BIT)
-                    .placeAt(process, new Vec3i(5, 110, 5));
-            new Corridor()
-                    .setData(DwarfCube.DIRECTION_EAST_BIT | DwarfCube.DIRECTION_SOUTH_BIT)
-                    .placeAt(process, new Vec3i(0, 110, 5));
-
-            new VerticalLadder()
-                    .placeAt(process, new Vec3i(0, 105, 0));
-            new VerticalLadder()
-                    .placeAt(process, new Vec3i(0, 110, 0));
+                    .setData(0xf)
+                    .placeAt(process, new Vec3i(25, 210, 25));
+            new Stairs()
+                    .setDirection(Direction.SOUTH)
+                    .placeAt(process, new Vec3i(25, 205, 20));
+            new Stairs()
+                    .setDirection(Direction.SOUTH)
+                    .placeAt(process, new Vec3i(25, 200, 15));
 
         }catch(Exception e){
             e.printStackTrace();
