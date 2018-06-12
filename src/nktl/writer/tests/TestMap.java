@@ -13,7 +13,7 @@ public class TestMap {
         try {
              DwarfCube[] ladders = {
                 new DwarfCube(new Vec3i(15, 15, 0)),
-                new DwarfCube(new Vec3i(25, 40, 0)),
+                new DwarfCube(new Vec3i(25, 20, 0)),
                 new DwarfCube(new Vec3i(30, 10, 0))
             };
 
@@ -28,12 +28,12 @@ public class TestMap {
                     //.setSeed((long) (Math.random()*2*Long.MAX_VALUE - Long.MAX_VALUE))
                     .setLoopProbability(0.2)
                     .setLenBeforeTurn(3, 5);
-            DwarfMap dm = generator.generateMap(40, 40, 1, ladders);
+            DwarfMap dm = generator.generateMap(30, 30, 1, ladders);
 
             MapWriter writer = new MapWriter()
                     .setProcess(new RMIClient().getProcess())
                     .setUsedPlayer("hukumka")
-                    .setOffset(new Vec3i(0, 140, 0));
+                    .setOffset(new Vec3i(-200, 120, -200));
 
             writer.writeMap(dm);
 

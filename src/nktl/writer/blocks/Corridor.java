@@ -35,113 +35,51 @@ public class Corridor implements DwarfBlock{
                 new Fill(position.plus(0, 4, 0), position.plus(4, 4, 4), "minecraft:stonebrick")
         );
 
-        // create edge ladders
-        commands.add(
-                new Fill(position.plus(0, 1, 0), position.plus(3, 1, 0), "minecraft:stone_brick_stairs")
-                        .dataValue(3)
-        );
-        commands.add(
-                new Fill(position.plus(4, 1, 0), position.plus(4, 1, 3), "minecraft:stone_brick_stairs")
-                        .dataValue(0)
-        );
-        commands.add(
-                new Fill(position.plus(4, 1, 4), position.plus(1, 1, 4), "minecraft:stone_brick_stairs")
-                        .dataValue(2)
-        );
-        commands.add(
-                new Fill(position.plus(0, 1, 4), position.plus(0, 1, 1), "minecraft:stone_brick_stairs")
-                        .dataValue(1)
-        );
-        // create edge ladders upside down
-        commands.add(
-                new Fill(position.plus(0, 3, 0), position.plus(3, 3, 0), "minecraft:stone_brick_stairs")
-                        .dataValue(7)
-        );
-        commands.add(
-                new Fill(position.plus(4, 3, 0), position.plus(4, 3, 3), "minecraft:stone_brick_stairs")
-                        .dataValue(4)
-        );
-        commands.add(
-                new Fill(position.plus(4, 3, 4), position.plus(1, 3, 4), "minecraft:stone_brick_stairs")
-                        .dataValue(6)
-        );
-        commands.add(
-                new Fill(position.plus(0, 3, 4), position.plus(0, 3, 1), "minecraft:stone_brick_stairs")
-                        .dataValue(5)
-        );
-
-
-        int[] bits = {
-                DwarfCube.DIRECTION_EAST_BIT,
-                DwarfCube.DIRECTION_SOUTH_BIT,
-                DwarfCube.DIRECTION_WEST_BIT,
-                DwarfCube.DIRECTION_NORTH_BIT
-        };
         Vec3i center = position.plus(2, 2, 2);
-        for(int i=0; i<4; ++i) {
-            if(is(bits[i])){
-                Fill f = new Fill(
-                        position.plus(4, 1, 1),
-                        position.plus(4, 3, 3),
-                        "minecraft:air"
-                );
-                Fill fix_stair = null;
-                Fill fix_stair2 = null;
-                Fill fix_stair3 = null;
-                Fill fix_stair4 = null;
-                if(!is(bits[(i+3)%4])){ // test if not clockwise corridor
-                    fix_stair = new Fill(
-                            position.plus(4, 1, 0),
-                            position.plus(4, 1, 0),
-                            "minecraft:stone_brick_stairs"
-                    ).dataValue(3);
-                    fix_stair2 = new Fill(
-                            position.plus(4, 3, 0),
-                            position.plus(4, 3, 0),
-                            "minecraft:stone_brick_stairs"
-                    ).dataValue(7);
-                }
-                if(is(bits[(i+1)%4])){ // test if not clockwise corridor
-                    fix_stair3 = new Fill(
-                            position.plus(0, 1, 0),
-                            position.plus(0, 1, 0),
-                            "minecraft:stone_brick_stairs"
-                    ).dataValue(1);
-                    fix_stair4 = new Fill(
-                            position.plus(0, 3, 0),
-                            position.plus(0, 3, 0),
-                            "minecraft:stone_brick_stairs"
-                    ).dataValue(5);
-                }
+        // create stairs
+        int[] directionBits = {DwarfCube.DIRECTION_WEST_BIT, DwarfCube.DIRECTION_SOUTH_BIT, DwarfCube.DIRECTION_EAST_BIT, DwarfCube.DIRECTION_NORTH_BIT};
+        for(int i=0; i<4; ++i){
+            boolean backOpen = is(directionBits[i]);
+            boolean leftOpen = is(directionBits[(i+3)%4]);
+            for(Fill f: buildCorner(center, backOpen, leftOpen)){
                 for(int j=0; j<i; ++j){
                     f.rotate90(center.x, center.z);
-                    if(fix_stair != null){
-                        fix_stair.rotate90(center.x, center.z);
-                        fix_stair2.rotate90(center.x, center.z);
-                    }
-                    if(fix_stair3 != null){
-                        fix_stair3.rotate90(center.x, center.z);
-                        fix_stair4.rotate90(center.x, center.z);
-                    }
                 }
                 commands.add(f);
-                if(fix_stair != null){
-                    commands.add(fix_stair);
-                    commands.add(fix_stair2);
-                }
-                if(fix_stair3 != null){
-                    commands.add(fix_stair3);
-                    commands.add(fix_stair4);
-                }
             }
         }
-
-        for(Fill c: commands){
-            process.write(c.toCommandString());
+        for(Fill f: commands){
+            f.runIn(process);
         }
     }
 
     private boolean is(int bit){
         return (data & bit) > 0;
+    }
+
+    private ArrayList<Fill> buildCorner(Vec3i center, boolean backOpen, boolean leftOpen){
+        ArrayList<Fill> commands = new ArrayList<>();
+        // first iteration is floor
+        // second is ceiling
+        //
+        for(int i=0; i<2; ++i) {
+            int innerHeight = (i==0)? -1: 1;
+            int outerHeight = (i==0)? -2: 2;
+            boolean innerUpsideDown = i != 0;
+            boolean outerUpsideDown = i != 1;
+            if (backOpen && leftOpen) {
+                commands.add(Builder.createStairsSingle(center.plus(-2, innerHeight, -2), Direction.WEST, innerUpsideDown));
+                commands.add(Builder.createStairsSingle(center.plus(-2, outerHeight, -2), Direction.EAST, outerUpsideDown));
+            }
+            if(!leftOpen) {
+                commands.add(Builder.createStairs(center.plus(-2, innerHeight, -2), center.plus(0, innerHeight, -2), Direction.NORTH, innerUpsideDown));
+                commands.add(Builder.createStairs(center.plus(-2, outerHeight, -2), center.plus(0, outerHeight, -2), Direction.SOUTH, outerUpsideDown));
+            }
+            if(!backOpen){
+                commands.add(Builder.createStairs(center.plus(-2, innerHeight, -2), center.plus(-2, innerHeight, -1), Direction.WEST, innerUpsideDown));
+                commands.add(Builder.createStairs(center.plus(-2, outerHeight, -2), center.plus(-2, outerHeight, -1), Direction.EAST, outerUpsideDown));
+            }
+        }
+        return commands;
     }
 }

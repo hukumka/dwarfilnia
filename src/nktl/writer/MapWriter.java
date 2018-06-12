@@ -75,7 +75,8 @@ public class MapWriter {
                     break;
                 case DwarfCube.TYPE_VERTICAL_LADDER:
                     block = new VerticalLadder()
-                            .setWays(c.getDirection());
+                            .setWays(c.getDirection())
+                            .setDirection(c.enumDirection());
                     break;
             }
             if(block != null){
@@ -94,7 +95,7 @@ public class MapWriter {
     }
 
     private Vec3i mapToWorld(Vec3i mapCoordinates){
-        return offset.plus(mapCoordinates.x*5, mapCoordinates.z*5, mapCoordinates.y*5);
+        return offset.plus(mapCoordinates.x*5, mapCoordinates.z*5, -mapCoordinates.y*5);
     }
 
 }
