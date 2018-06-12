@@ -1,6 +1,5 @@
 package nktl.writer.tests;
 
-import nktl.generator.DwarfCube;
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
@@ -13,13 +12,12 @@ public class TestBlocks {
         try {
             MinecraftRMIProcess process = new RMIClient().getProcess();
 
-            /*
-            for(int i=0; i<0x10; ++i) {
-                new Corridor()
-                        .setData(i)
-                        .placeAt(process, new Vec3i(-20 - 5*i, 100, 0));
-            }
-            */
+            new BrokenStairs()
+                    .setDirection(Direction.EAST)
+                    .placeAt(process, new Vec3i(0, 100, 100));
+            new BrokenStairs()
+                    .setDirection(Direction.EAST)
+                    .placeAt(process, new Vec3i(0, 105, 100));
 
         }catch(Exception e){
             e.printStackTrace();

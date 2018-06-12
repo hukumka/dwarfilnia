@@ -36,16 +36,25 @@ public class Stairs implements DwarfBlock{
             );
         }
         commands.add(
-                new Fill(pos.plus(4, 5, 1), pos.plus(4, 5, 3), "minecraft:stone_brick_stairs")
-                        .dataValue(0)
-        );
-        commands.add(
                 new Fill(pos.plus(4, 4, 1), pos.plus(4, 4, 3), "minecraft:stone_brick_stairs")
                         .dataValue(5)
         );
         commands.add(
                 new Fill(pos.plus(4, 0, 1), pos.plus(4, 0, 3), "minecraft:stone_brick_stairs")
                         .dataValue(0)
+        );
+        commands.add(
+                new Fill(pos.plus(-1, 4, 1), pos.plus(-1, 4, 3), "minecraft:stone_brick_stairs")
+                        .dataValue(5)
+        );
+        // create walls
+        commands.add(
+                new Fill(pos, pos.plus(4, 4, 0), "minecraft:stonebrick")
+                    .replace("minecraft:air")
+        );
+        commands.add(
+                new Fill(pos.plus(0, 0, 4), pos.plus(4, 4, 4), "minecraft:stonebrick")
+                        .replace("minecraft:air")
         );
         // create pillars
         commands.add(
@@ -68,7 +77,7 @@ public class Stairs implements DwarfBlock{
         Vec3i center = pos.plus(2, 2, 2);
         for(Fill c: commands){
             for(int i=0; i<direction.rotationCount(); ++i)
-                c.rotate90(center.x, center.z);
+                c.rotate90Y(center.x, center.z);
             c.runIn(process);
         }
 
