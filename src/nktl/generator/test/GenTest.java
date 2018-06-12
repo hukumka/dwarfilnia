@@ -13,13 +13,16 @@ import nktl.generator.DwarfList;
 import nktl.generator.DwarfMap;
 import nktl.generator.Generator;
 import nktl.math.geom.Vec3i;
+import nktl.math.graph.Graph;
+
+import java.util.LinkedList;
 
 public class GenTest extends Application {
 
     DwarfList cubeList;
 
-    int width = 40;
-    int height = 40;
+    int width = 60;
+    int height = 60;
     int depth = 3;
 
     @Override
@@ -33,7 +36,7 @@ public class GenTest extends Application {
         };
 
         for (DwarfCube ladder : ladders){
-            ladder.setType(DwarfCube.TYPE_DIAGONAL_LADDER);
+            ladder.setType(DwarfCube.TYPE_VERTICAL_LADDER);
         }
 
         generator
@@ -44,6 +47,25 @@ public class GenTest extends Application {
                 .setLenBeforeTurn(2, 5);
         DwarfMap dm = generator.generateMap(width, height, depth, ladders);
         cubeList = dm.toCubeList();
+
+        LinkedList<Graph<DwarfCube>.Node> set = new LinkedList<>();
+        for (DwarfCube protoCube : ladders) {
+            Vec3i position = protoCube.getPosition();
+            for (int i = 0; i < depth; i++) {
+                position.z = i;
+                set.add(dm.get(position).getNode());
+            }
+        }
+
+        Graph<DwarfCube> graph = dm.getGraph();
+        for (var n1 : set) {
+            System.out.println();
+            for (var n2 : set) {
+                if (n1.equals(n2)) System.out.print("N ");
+                else System.out.print((graph.isConnected(n1, n2) ? '1' : '0') + " ");
+            }
+        }
+
     }
 
     @Override

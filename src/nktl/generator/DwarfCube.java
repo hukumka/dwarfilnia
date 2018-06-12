@@ -2,6 +2,7 @@ package nktl.generator;
 
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
+import nktl.math.graph.Graph;
 
 public class DwarfCube {
 
@@ -43,11 +44,17 @@ public class DwarfCube {
     int type = TYPE_TUNNEL;
     int direction = 0;
     Vec3i position = new Vec3i();
+    Graph<DwarfCube>.Node node = null;
 
     public DwarfCube(){}
 
     public DwarfCube(Vec3i position){
         this.position.copy(position);
+    }
+
+    public DwarfCube(Graph<DwarfCube>.Node node, Vec3i position){
+        this(position);
+        this.node = node;
     }
 
     public int getType() {
@@ -66,8 +73,12 @@ public class DwarfCube {
         this.type = type;
     }
 
+    public Graph<DwarfCube>.Node getNode() { return node; }
+    public void setNode(Graph<DwarfCube>.Node node) { this.node = node; }
+
     public DwarfCube copy(){
         DwarfCube dc = new DwarfCube();
+        dc.setNode(this.node);
         dc.position.copy(this.position);
         dc.type = this.type;
         dc.direction = this.direction;
@@ -114,5 +125,15 @@ public class DwarfCube {
         if ((bit & DIRECTION_EAST_BIT) > 0) return Direction.EAST;
         if ((bit & DIRECTION_SOUTH_BIT) > 0) return Direction.SOUTH;
         return Direction.WEST;
+    }
+
+    @Override
+    public String toString() {
+        return "DwarfCube{" +
+                "type=" + type +
+                ", direction=" + direction +
+                ", position=" + position +
+                ", node=" + node +
+                '}';
     }
 }

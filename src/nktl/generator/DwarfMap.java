@@ -3,24 +3,31 @@ package nktl.generator;
 import nktl.math.RangeInt;
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
+import nktl.math.graph.Graph;
 
+import java.util.LinkedList;
 import java.util.Random;
 
 public class DwarfMap {
 
+    // Графы
+    Graph<DwarfCube> graph = new Graph<>();
+    LinkedList<Connection> connections = new LinkedList<>();
+
+    //
     public DwarfCube[] map;
 
     RangeInt rangeX = new RangeInt(),
              rangeY = new RangeInt(),
              rangeZ = new RangeInt();
 
-    int dx, dy, dz;
+    private int dx, dy, dz;
 
     public int layerSize;
-    DwarfCube lastNorthExpander = null,
-                lastEastExpander = null,
-                lastSouthExpander = null,
-                lastWestExpander = null;
+    DwarfCube northEdge = null,
+                eastEdge = null,
+                southEdge = null,
+                westEdge = null;
 
     RangeInt genBoundsX = new RangeInt();
     RangeInt genBoundsY = new RangeInt();
@@ -80,7 +87,7 @@ public class DwarfMap {
                 genBoundsY.equals(rangeY);
     }
 
-    // Геты
+    // Гетеры
     public DwarfCube get(Vec3i pos){
         return map[inMapPosition(pos)];
     }
@@ -93,29 +100,42 @@ public class DwarfMap {
         map[inMapPosition(cube.position)] = cube;
     }
 
-    public void createCubeAt(Vec3i pos) {
-        createCubeAt(pos, false);
+    public DwarfCube createCubeAt(Vec3i pos) {
+        return createCubeAt(pos, false);
     }
 
-    public void createCubeAt(Vec3i pos, boolean asGenBounds){
+    public int getDimX() { return dx; }
+    public int getDimY() { return dy; }
+    public int getDimZ() { return dz; }
+
+    public LinkedList<Connection> getConnections() {
+        return connections;
+    }
+
+    public Graph<DwarfCube> getGraph(){
+        return graph;
+    }
+
+    public DwarfCube createCubeAt(Vec3i pos, boolean asGenBounds){
         DwarfCube theNewOne;
         map[inMapPosition(pos)] = theNewOne = new DwarfCube(pos);
 
         if (asGenBounds) {
-            lastWestExpander = lastNorthExpander =
-                            lastEastExpander = lastSouthExpander = theNewOne;
+            westEdge = northEdge =
+                            eastEdge = southEdge = theNewOne;
         } else
         if (!genBoundsX.has(pos.x) || !genBoundsY.has(pos.y)) {
             if (pos.y < genBoundsY.min())
-                lastSouthExpander = theNewOne;
+                southEdge = theNewOne;
             else if (pos.y > genBoundsY.max())
-                lastNorthExpander = theNewOne;
+                northEdge = theNewOne;
             if (pos.x < genBoundsX.min())
-                lastWestExpander = theNewOne;
+                westEdge = theNewOne;
             else if (pos.x > genBoundsX.max())
-                lastEastExpander = theNewOne;
+                eastEdge = theNewOne;
         }
         addPointToBounds(pos);
+        return theNewOne;
     }
 
     public Vec3i getRandomPosition(int level, Random random) throws GeneratorException {
@@ -159,6 +179,22 @@ public class DwarfMap {
         }
         if (!this.has(testPosition)) return false;
         return get(testPosition) != null;
+    }
+
+    public Graph<DwarfCube>.Node anotherNodeAround(Vec3i pos, Graph.Node node){
+        Vec3i[] surroundings = {
+                new Vec3i(pos.x+1, pos.y, pos.z),
+                new Vec3i(pos.x-1, pos.y, pos.z),
+                new Vec3i(pos.x, pos.y+1, pos.z),
+                new Vec3i(pos.x, pos.y-1, pos.z)
+        };
+        for (Vec3i v : surroundings) if (this.has(v)){
+            DwarfCube cube = get(v);
+            if (cube == null) continue;
+            Graph<DwarfCube>.Node another = get(v).node;
+            if (!node.equals(another)) return another;
+        }
+        return null;
     }
 
     public boolean hasBlocksAroundAtLevel(Vec3i pos, Direction direct) {

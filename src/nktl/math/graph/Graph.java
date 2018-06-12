@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 public class Graph<N> implements IGraph<Graph<N>.Node>{
-    class Node{
+    public class Node{
         N data;
         HashSet<Node> neighbors;
     }

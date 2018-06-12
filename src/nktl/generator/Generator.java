@@ -2,6 +2,7 @@ package nktl.generator;
 
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
+import nktl.math.graph.Graph;
 
 import java.util.LinkedList;
 import java.util.Random;
@@ -10,18 +11,22 @@ public class Generator {
     
     static class Way extends Vec3i{
         Direction dir = Direction.NORTH;
+        Graph<DwarfCube>.Node node = null;
 
-        Way(){}
+        Way(Graph<DwarfCube>.Node node){
+            this.node = node;
+        }
 
-        Way(Vec3i pos, Direction dir) {
+        Way(Graph<DwarfCube>.Node node, Vec3i pos, Direction dir) {
+            this(node);
             this.copy(pos.x, pos.y, pos.z);
             this.dir = dir;
         }
 
-        Way getLeft(){ return new Way(this, this.dir.getLeft()); }
-        Way getRight(){ return new Way(this, this.dir.getRight()); }
-        Way getFront(){ return new Way(this, this.dir); }
-        Way getBack() { return new Way(this, this.dir.getBack()); }
+        Way getLeft(){ return new Way(this.node, this, this.dir.getLeft()); }
+        Way getRight(){ return new Way(this.node, this, this.dir.getRight()); }
+        Way getFront(){ return new Way(this.node, this, this.dir); }
+        Way getBack() { return new Way(this.node, this, this.dir.getBack()); }
     }
 
     private static final byte
@@ -98,6 +103,21 @@ public class Generator {
             generateLevel(map, i, startCubes);
         }
         map.setCubeTypes();
+
+        if (startCubes != null && startCubes.length > 0){
+            for (int layer = 0; layer < layers-1; layer++){
+                for (DwarfCube cube : startCubes) {
+                    Vec3i pos = cube.getPosition();
+                    pos.z = layer;
+                    Vec3i below = pos.copy();
+                    below.z++;
+                    var n1 = map.get(pos).node;
+                    var n2 = map.get(below).node;
+                    map.graph.connect(n1, n2);
+                    map.connections.add(new Connection(n1, n2, map.get(below)));
+                }
+            }
+        }
         return map;
     }
 
@@ -119,50 +139,56 @@ public class Generator {
     }
 
     private void generateLevel(DwarfMap map, int level, DwarfCube... startCubes) throws GeneratorException {
+
+
         LinkedList<Way> ways = new LinkedList<>();
         if (startCubes != null && startCubes.length > 0){
             for (DwarfCube cube : startCubes){
-                if (!map.has(cube.position)) continue;
+                DwarfCube dc = cube.copy();
+                dc.position.z = level;
+                if (!map.has(dc.position)) continue;
                 Direction direction;
-                if (cube.typeIs(DwarfCube.TYPE_DIAGONAL_LADDER))
-                    direction = cube.enumDirection();
-                else if (cube.direction == 0) {
+                if (dc.typeIs(DwarfCube.TYPE_DIAGONAL_LADDER))
+                    direction = dc.enumDirection();
+                else if (dc.direction == 0) {
                     double dirVal = random();
                     direction =
                             dirVal < 0.25 ? Direction.NORTH :
                                     dirVal < 0.5 ? Direction.SOUTH :
                                             dirVal < 0.75 ? Direction.EAST : Direction.WEST;
-                } else direction = cube.enumDirection();
-
-                Way way = new Way(cube.position, direction);
+                } else direction = dc.enumDirection();
+                Graph<DwarfCube>.Node node = map.graph.newNode(dc);
+                Way way = new Way(node, dc.position, direction);
                 if (ways.isEmpty()) map.setPointAsGenBounds(way);
-                way.z = level;
                 ways.add(way);
-                DwarfCube dc = cube.copy();
+                dc.setNode(node);
                 dc.position.z = level;
                 map.placeCube(dc);
             }
         }
         if (ways.isEmpty()){
-            Way startWay = new Way(map.getRandomPosition(level, random), Direction.NORTH);
-            map.setPointAsGenBounds(startWay);
+            Vec3i position = map.getRandomPosition(level, random);
+            map.setPointAsGenBounds(position);
+            DwarfCube cube = map.createCubeAt(position, true);
+            Graph.Node node = map.graph.newNode(cube);
+            cube.setNode(node);
+            Way startWay = new Way(map.graph.newNode(cube), position, Direction.NORTH);
             ways.add(startWay);
-            map.createCubeAt(startWay);
         }
 
         while (!ways.isEmpty() || !map.genBoundsMatchMax()) {
             if (!ways.isEmpty()) {
                 ways = genNewWays(map, ways);
             } else {
-                if (map.genBoundsX.max() < map.rangeX.max() && map.lastEastExpander!= null)
-                    ways.add(new Way(map.lastEastExpander.position, Direction.EAST));
-                if (map.genBoundsY.max() < map.rangeY.max() && map.lastNorthExpander!= null)
-                    ways.add(new Way(map.lastNorthExpander.position, Direction.NORTH));
+                if (map.genBoundsX.max() < map.rangeX.max() && map.eastEdge != null)
+                    ways.add(new Way(map.eastEdge.node, map.eastEdge.position, Direction.EAST));
+                if (map.genBoundsY.max() < map.rangeY.max() && map.northEdge != null)
+                    ways.add(new Way(map.northEdge.node, map.northEdge.position, Direction.NORTH));
 
-                if (map.genBoundsX.min() > map.rangeX.min() && map.lastWestExpander!= null)
-                    ways.add(new Way(map.lastWestExpander.position, Direction.WEST));
-                if (map.genBoundsY.min() > map.rangeY.min() && map.lastSouthExpander!= null)
-                    ways.add(new Way(map.lastSouthExpander.position, Direction.SOUTH));
+                if (map.genBoundsX.min() > map.rangeX.min() && map.westEdge != null)
+                    ways.add(new Way(map.westEdge.node, map.westEdge.position, Direction.WEST));
+                if (map.genBoundsY.min() > map.rangeY.min() && map.southEdge != null)
+                    ways.add(new Way(map.southEdge.node, map.southEdge.position, Direction.SOUTH));
                 if (ways.isEmpty()) break;
                 ways = genNewWays(map, ways);
             }
@@ -198,7 +224,9 @@ public class Generator {
 
             for (Way w : ws) {
                 if (w == null) continue;
+                //System.out.print("Before : " + map.get(30, 10, way.z).type);
                 Way nextWay = generateDaWay(map, w);
+                //System.out.println("; After : " + map.get(30, 10, way.z).type);
                 if (nextWay != null) newWays.add(nextWay);
             }
         }
@@ -207,11 +235,11 @@ public class Generator {
     }
 
     private Way generateDaWay(DwarfMap map, Way way) {
+
         int minLen = minLenBeforeTurn - 1;
         int numBlocks = minLen + (int) (random() * (maxLenBeforeTurn - minLen));
         if (map.get(way).getType() == DwarfCube.TYPE_VERTICAL_LADDER && numBlocks < 2)
             numBlocks = 2;
-
         for (int i = 0; i < numBlocks; i++) {
             //System.out.println("Direction - " + way.dir + ". Incrementing position...");
             switch (way.dir) {
@@ -221,18 +249,33 @@ public class Generator {
                 case WEST: way.x--; break;
             }
             if (!map.has(way)) return null;
+            if (map.get(way) != null) return null;
             //System.out.println("Map has new position.");
             if (map.hasVerticalLaddersAtCorners(way))
                 return null;
 
             if (map.hasBlocksAroundAtLevel(way, way.dir)){
                 //System.out.println("Found block on the way.");
-                if (random() < loopProbability) map.createCubeAt(way);
+                //*
+                Graph<DwarfCube>.Node node = map.anotherNodeAround(way, way.node);
+                if (node != null) {
+                    if (map.graph.isConnected(node, way.node)) return null;
+                    DwarfCube cube = createCubeWithNode(map, way);
+                    map.graph.connect(node, way.node);
+                    map.connections.add(new Connection(node, way.node, cube));
+                } else /**/
+                if (random() < loopProbability) createCubeWithNode(map, way);
                 return null;
-            } else map.createCubeAt(way);
+            } else createCubeWithNode(map, way);
             //System.out.println("No blocks around. Can continue.");
         }
         return way;
+    }
+
+    private DwarfCube createCubeWithNode(DwarfMap map, Way way){
+        DwarfCube cube = map.createCubeAt(way);
+        cube.setNode(way.node);
+        return cube;
     }
 
     private double random(){
