@@ -34,7 +34,7 @@ public class ChuckMap implements Iterable<ChuckMap.Chunk>{
         }
     }
 
-    static int chunkSize = 16;
+    static int chunkSize = 8;
 
     HashMap<Vec3i, Chunk> chucks;
 

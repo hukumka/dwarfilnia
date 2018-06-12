@@ -32,7 +32,7 @@ public class DwarfMap {
     RangeInt genBoundsX = new RangeInt();
     RangeInt genBoundsY = new RangeInt();
 
-    DwarfMap(Vec3i dimensions){
+    public DwarfMap(Vec3i dimensions){
         this.dx = dimensions.x;
         this.dy = dimensions.y;
         this.dz = dimensions.z;
