@@ -29,6 +29,12 @@ public class Vec3i {
         return new Vec3i(x*k, y*k, z*k);
     }
 
+    public void multIn(int k){
+        x *= k;
+        y *= k;
+        z *= k;
+    }
+
     public Vec3i copy(){
         return new Vec3i(x, y, z);
     }

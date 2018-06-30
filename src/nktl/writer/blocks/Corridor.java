@@ -4,7 +4,6 @@ import nktl.generator.DwarfCube;
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
-import nktl.server.commands.Command;
 import nktl.server.commands.Fill;
 
 import java.io.IOException;
@@ -43,7 +42,7 @@ public class Corridor implements DwarfBlock{
             boolean leftOpen = is(directionBits[(i+3)%4]);
             for(Fill f: buildCorner(center, backOpen, leftOpen)){
                 for(int j=0; j<i; ++j){
-                    f.rotate90(center.x, center.z);
+                    f.rotate90Y(center.x, center.z);
                 }
                 commands.add(f);
             }

@@ -8,6 +8,7 @@ import nktl.server.MinecraftRMIProcess;
 import nktl.server.commands.TeleportPlayer;
 import nktl.writer.blocks.Corridor;
 import nktl.writer.blocks.DwarfBlock;
+import nktl.writer.blocks.Stairs;
 import nktl.writer.blocks.VerticalLadder;
 
 import java.io.IOException;
@@ -16,8 +17,8 @@ public class MapWriter {
     private Vec3i offset = null;
     private MinecraftRMIProcess process = null;
     private String userPlayerName = null;
-    private int sleepBetweenChunks = 1000;
-    private int sleepBetweenCubes = 50;
+    private int sleepBetweenChunks = 500;
+    private int sleepBetweenCubes = 70;
 
     public MapWriter setProcess(MinecraftRMIProcess process){
         this.process = process;
@@ -78,6 +79,9 @@ public class MapWriter {
                             .setWays(c.getDirection())
                             .setDirection(c.enumDirection());
                     break;
+                case DwarfCube.TYPE_DIAGONAL_LADDER:
+                    block = new Stairs()
+                            .setDirection(c.enumDirection());
             }
             if(block != null){
                 block.placeAt(process, mapToWorld(c.getPosition()));

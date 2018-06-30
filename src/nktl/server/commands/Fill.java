@@ -31,7 +31,7 @@ public class Fill extends Command{
         return this;
     }
 
-    public Fill rotate90(int x, int z){
+    public Fill rotate90Y(int x, int z){
         from = from.rotateAroundY90(x, z);
         to = to.rotateAroundY90(x, z);
         if(block.equals("minecraft:stone_brick_stairs")){
@@ -57,12 +57,6 @@ public class Fill extends Command{
         return this;
     }
 
-    public Fill rotate180(int x, int z){
-        return rotate90(x, z).rotate90(x, z);
-    }
-    public Fill rotate270(int x, int z){
-        return rotate90(x, z).rotate90(x, z).rotate270(x, z);
-    }
 
     @Override
     public String toCommandString() {

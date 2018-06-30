@@ -68,10 +68,13 @@ public class DwarfCube {
     public int getDirection() {
         return direction;
     }
+    public DwarfCube setDirection(int direction){this.direction = direction; return this;}
 
-    public void setType(int type) {
+    public DwarfCube setType(int type) {
         this.type = type;
+        return this;
     }
+
 
     public Graph<DwarfCube>.Node getNode() { return node; }
     public void setNode(Graph<DwarfCube>.Node node) { this.node = node; }
