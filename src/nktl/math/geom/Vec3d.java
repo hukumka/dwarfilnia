@@ -14,6 +14,12 @@ public class Vec3d {
         this.z = z;
     }
 
+    public Vec3d(Vec3d src){
+        this.x = src.x;
+        this.y = src.y;
+        this.z = src.z;
+    }
+
     public Vec3d copy(){
         return new Vec3d(x, y, z);
     }
@@ -24,11 +30,55 @@ public class Vec3d {
         this.z = z;
     }
 
-    public void unit(){
+    public void copy(Vec3d src) {
+        this.x = src.x;
+        this.y = src.y;
+        this.z = src.z;
+    }
+
+    public Vec3d unit(){
+        double length = length();
+        return new Vec3d(x/length, y/length, z/length);
+    }
+
+    public void unitIn(){
         double length = length();
         x /= length;
         y /= length;
         z /= length;
+    }
+
+    public Vec3d multIn(double value){
+        this.x *= value;
+        this.y *= value;
+        this.z *= value;
+        return this;
+    }
+
+    public Vec3d mult(double value){
+        return new Vec3d(x * value, y * value, z * value);
+    }
+
+    public Vec3d plus(Vec3d src){
+        return new Vec3d(this.x + src.x, this.y + src.y, this.z + src.z);
+    }
+
+    public Vec3d plusIn(Vec3d src){
+        this.x += src.x;
+        this.y += src.y;
+        this.z += src.z;
+        return this;
+    }
+
+    public Vec3d minus(Vec3d src) {
+        return new Vec3d(this.x - src.x, this.y - src.y, this.z - src.z);
+    }
+
+    public Vec3d minusIn(Vec3d src){
+        this.x -= src.x;
+        this.y -= src.y;
+        this.z -= src.z;
+        return this;
     }
 
     public double length(){

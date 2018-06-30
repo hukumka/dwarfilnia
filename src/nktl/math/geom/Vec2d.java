@@ -33,6 +33,25 @@ public class Vec2d {
         y /= len;
     }
 
+    public Vec2d mult(double mult){
+        return new Vec2d(x*mult, y*mult);
+    }
+
+    public Vec2d multIn(double mult){
+        this.x *= mult;
+        this.y *= mult;
+        return this;
+    }
+
+    public void plusIn(Vec2d src){
+        this.x += src.x;
+        this.y += src.y;
+    }
+
+    public Vec2d plus(Vec2d src){
+        return new Vec2d(this.x + src.x, this.y + src.y);
+    }
+
     public double length(){
         return Math.sqrt(x*x + y*y);
     }
