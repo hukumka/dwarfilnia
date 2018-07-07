@@ -4,7 +4,7 @@ package nktl.dwarf;
 import nktl.math.geom.Vec3i;
 import nktl.math.graph.Graph;
 
-import java.util.HashSet;
+import java.util.HashMap;
 
 public class DwarfCube implements Attractor {
     /*
@@ -20,13 +20,6 @@ public class DwarfCube implements Attractor {
 
     public enum Feature {
         SEWER, CAGE, DOOR, ENTRANCE, WAY;
-        byte data;
-        public byte getData(){
-            return data;
-        }
-        public boolean hasBit(int bit){
-            return (data & bit) == bit;
-        }
     }
 
     public static final int
@@ -41,7 +34,7 @@ public class DwarfCube implements Attractor {
         Переменные
      */
     int type;
-    HashSet<Feature> features = new HashSet<>();
+    HashMap<Feature, Integer> features = new HashMap<>();
     Vec3i position = new Vec3i();
     Graph<DwarfCube>.Node node = null;
 
@@ -77,5 +70,7 @@ public class DwarfCube implements Attractor {
         return type == TYPE_VERTICAL_LADDER;
     }
 
-
+    public boolean hasBit(int src, int bit) {
+        return (src & bit) == bit;
+    }
 }
