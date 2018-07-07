@@ -89,9 +89,9 @@ public class Render extends ZRender {
 
         try {
             prog.setGLObj(gl);
-            prog.addShader(gl, "dwarf", "demo.vert");
-            prog.addShader(gl, "dwarf", "demo.geom");
-            prog.addShader(gl, "dwarf", "demo.frag");
+            prog.addShader(gl, "res/shader", "demo.vert");
+            prog.addShader(gl, "res/shader", "demo.geom");
+            prog.addShader(gl, "res/shader", "demo.frag");
             prog.link();
             prog.validate();
             progs.put("shader", prog);
