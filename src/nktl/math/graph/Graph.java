@@ -8,9 +8,17 @@ public class Graph<N> implements IGraph<Graph<N>.Node>{
     public class Node{
         N data;
         HashSet<Node> neighbors;
+
+        public N data(){
+            return data;
+        }
     }
 
     HashSet<Node> nodes = new HashSet<>();
+
+    public Iterator<Node> getNodes(){
+        return nodes.iterator();
+    }
 
     @Override
     public void connect(Node a, Node b){
