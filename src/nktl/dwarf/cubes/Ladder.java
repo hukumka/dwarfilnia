@@ -3,14 +3,14 @@ package nktl.dwarf.cubes;
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 
-public class DiagonalLadder extends BaseCube{
+public class Ladder extends BaseCube{
     private Direction direction;
 
-    DiagonalLadder(Vec3i pos){
+    Ladder(Vec3i pos){
         super(pos);
         this.direction = Direction.NORTH;
     }
-    DiagonalLadder(Vec3i pos, Direction direction){
+    Ladder(Vec3i pos, Direction direction){
         super(pos);
         this.direction = direction;
     }
