@@ -24,7 +24,7 @@ public class Corridor extends BaseCube {
         }
     }
 
-    private ArrayList<Feature> features;
+    private ArrayList<Feature> features = new ArrayList<>();
 
     Corridor(Vec3i pos){
         super(pos);
