@@ -150,7 +150,7 @@ public class Render extends ZRender {
         LinkedList<Cube> cubes = new LinkedList<>();
 
         for (DwarfCube src_cube : cube_src){
-            Cube cube = new Cube(0, src_cube.position());
+            Cube cube = Cube.make(0, src_cube.position(), src_cube);
             if (src_cube.features().containsKey(DwarfCube.Feature.WAY))
                 cube.addDirectionBits(src_cube.features().get(DwarfCube.Feature.WAY));
             cubes.add(cube);
