@@ -5,83 +5,79 @@ import nktl.math.geom.Vec3i;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import static nktl.dwarf.DwarfCube.TYPE_ROOT_CUBE;
-
 public class DwarfGen {
 
-    private DwarfSet set = new DwarfSet();
+    /*
+        ДАННЫЕ
+     */
+
+    private DwarfSet set = new DwarfSet(); // Настройки
 
     /*
         PUBLIC
      */
-    public DwarfSet getSet(){
-        return set;
-    }
+    public DwarfMap genMap(Vec3i... roots) throws GeneratorException {
+        set.resetSeed();
+        DwarfMap map = new DwarfMap(set.dimensions);
+        if (roots.length == 0)
+            roots = new Vec3i[] { map.randomPos(set) };
+        createCubes(map, roots);
+        var ways = asWays(map, roots);
 
-    public DwarfMap genMap(Vec3i dim, Vec3i root) throws GeneratorException {
-        if (!dimIsValid(dim)) throw new GeneratorException("Invalid dimensions : " + dim);
-        var map = new DwarfMap(dim);
-
-        if (root == null || !map.hasPosition(root))
-            root = map.getRandomPosition(set);
-
-        var rootCube = map.addCubeAt(root, TYPE_ROOT_CUBE);
-        var rootNode = map.graph().newNode(rootCube);
-        rootCube.setNode(rootNode);
-        var way = new DwarfWay(rootNode, root, 0);
-        way.copy(root);
-
-        var ways = new LinkedList<DwarfWay>();
-        ways.add(way);
         do {
-            ways = genWays(map, ways);
-            if (ways.isEmpty())
-                ways = checkBorders(map);
-            drawWays(map, ways);
-        } while(!ways.isEmpty());
-
+            ways = continueWays(map, ways);
+            //if (ways.isEmpty())
+            //    ways = getBorderWays(map, ways);
+        } while (!ways.isEmpty());
 
         return map;
     }
 
-    // Заставляет все пути нарисоваться
-    private void drawWays(DwarfMap map, LinkedList<DwarfWay> ways) throws GeneratorException {
-        for (var way : ways)
-            way.drawWay(map, set);
+    public DwarfSet settings(){
+        return set;
     }
-
-    private LinkedList<DwarfWay> checkBorders(DwarfMap map) throws GeneratorException {
-        var newWays = new LinkedList<DwarfWay>();
-        DwarfWay[] ways = map.getEdgeWays();
-        for (var way : ways) {
-            DwarfWay[] ws = way.genWays(map, set);
-            Collections.addAll(newWays, ws);
-        }
-        return newWays;
-    }
-
-    // Заставляет все мути сгенерить новые пути и скидывает их в новый лист
-    private LinkedList<DwarfWay> genWays(DwarfMap map, LinkedList<DwarfWay> ways) throws GeneratorException {
-        var newWays = new LinkedList<DwarfWay>();
-        for (var way : ways) {
-            DwarfWay[] ws = way.genWays(map, set);
-            Collections.addAll(newWays, ws);
-        }
-        ways.clear();
-        return newWays;
-    }
-
 
     /*
         PRIVATE
      */
-    private boolean dimIsValid(Vec3i dim){
-        return dim.x > 0 && dim.y > 0 && dim.z > 0;
+
+    // Достает пути с границ карты
+    private LinkedList<DwarfWay> getBorderWays(DwarfMap map, LinkedList<DwarfWay> ways) throws GeneratorException {
+        return asWays(ways, map, map.getEdges());
     }
 
-    /*
-        STATIC
-     */
+    // Отрисовывает пути и создает следующие
+    private LinkedList<DwarfWay> continueWays(DwarfMap map, LinkedList<DwarfWay> ways) throws GeneratorException {
+        Vec3i[]positions = new Vec3i[ways.size()];
+        int i = 0;
+        for (DwarfWay way : ways) {
+            positions[i] = way.drawWayNGetEnd(map, set);
+            ++i;
+        }
+        ways.clear();
+        return asWays(ways, map, positions);
+    }
 
+    // Создает кубы на указанных позициях
+    private DwarfCube[] createCubes(DwarfMap map, Vec3i[]positions) {
+        DwarfCube[]arr = new DwarfCube[positions.length];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = map.addNodeCubeAt(positions[i]);
+        }
+        return arr;
+    }
 
+    // Создает новые пути из массива перечисленных позиций
+    private LinkedList<DwarfWay> asWays(LinkedList<DwarfWay> dst, DwarfMap map, Vec3i[]positions) throws GeneratorException {
+        for (Vec3i pos : positions) {
+            if (pos == null) continue;
+            DwarfWay[]ways = DwarfWay.newWaysAt(map, pos, set);
+            Collections.addAll(dst, ways);
+        }
+        return dst;
+    }
+
+    private LinkedList<DwarfWay> asWays(DwarfMap map, Vec3i[]positions) throws GeneratorException {
+        return asWays(new LinkedList<>(), map, positions);
+    }
 }

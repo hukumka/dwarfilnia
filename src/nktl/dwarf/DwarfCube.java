@@ -1,76 +1,85 @@
 package nktl.dwarf;
 
-
 import nktl.math.geom.Vec3i;
 import nktl.math.graph.Graph;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 
-public class DwarfCube implements Attractor {
-    /*
-        Константы
-     */
+public class DwarfCube {
+
     public static final int
-            TYPE_EXCLUDED = -1,
-            TYPE_TUNNEL = 0,
-            TYPE_COLLECTOR = 1,
-            TYPE_VERTICAL_LADDER = 2,
-            TYPE_DIAGONAL_LADDER = 3,
-            TYPE_ROOT_CUBE = 4;
+            TYPE_PLUG = -1,
+            TYPE_UNKNOWN = 0,
+            TYPE_TUNNEL = 1,
+            TYPE_COLLECTOR = 2,
+            TYPE_LADDER = 3,
+            TYPE_STAIRS = 4,
+            TYPE_ROOT_CUBE = 5;
 
     public enum Feature {
-        SEWER, CAGE, DOOR, ENTRANCE, WAY;
+        SEWER, CAGE, DOOR, WAY, WATER, DESTRUCTION
     }
 
-    public static final int
-            DIRECTION_POS_X = 0b1,
-            DIRECTION_POS_Z = 0b10,
-            DIRECTION_NEG_X = 0b100,
-            DIRECTION_NEG_Z = 0b1000,
-            DIRECTION_POS_Y = 0b10000,
-            DIRECTION_NEG_Y = 0b100000;
+    public enum CubeType {
+        PLUG, UNKNOWN, TUNNEL, COLLECTOR, LADDER, STAIRS, ROOT_CUBE;
+    }
 
     /*
-        Переменные
+        ПЕРЕМЕННЫЕ
      */
-    int type;
-    HashMap<Feature, Integer> features = new HashMap<>();
-    Vec3i position = new Vec3i();
     Graph<DwarfCube>.Node node = null;
+    Vec3i position = new Vec3i();
+    CubeType type = CubeType.UNKNOWN;
+    HashMap<Feature, Integer> features = new HashMap<>();
+
 
 
     /*
         PUBLIC
      */
-    public DwarfCube(Vec3i pos, int type){
-        this.position.copy(pos);
-        this.type = type;
-    }
-
-    public void setNode(Graph<DwarfCube>.Node node) {
+    public void setNode(Graph<DwarfCube>.Node node){
         this.node = node;
     }
 
-    public Vec3i position(){
-        return position;
+    public boolean hasSewer(){
+        return features.containsKey(Feature.SEWER);
+    }
+    public boolean isFat() {
+        return this.type == CubeType.LADDER;
     }
 
-    public double distanceTo(Vec3i pos){
-        return new Vec3i(
-                position.x - pos.x,
-                position.y - pos.y,
-                position.z - pos.z).length();
+    public void addBit(Feature feature, int bit){
+        if (!features.containsKey(feature))
+            features.put(feature, bit);
+        else
+            features.put(feature, features.get(feature) | bit);
     }
 
-    public int type(){
-        return type;
+    public boolean hasBit(Feature feature, int bit){
+        if (!features.containsKey(feature)) return false;
+        return (features.get(feature) & bit) == bit;
     }
 
-    public boolean isFat(){
-        return type == TYPE_VERTICAL_LADDER;
+    public HashMap<Feature, Integer> features() { return features; }
+    public Vec3i position(){ return position; }
+    public CubeType type(){ return type; }
+
+
+
+    /*
+        STATIC
+     */
+
+    public static HashMap<CubeType, LinkedList<DwarfCube>> separate(Collection<DwarfCube> cubes){
+        var map = new HashMap<CubeType, LinkedList<DwarfCube>>();
+        for (DwarfCube cube : cubes){
+            if (!map.containsKey(cube.type))
+                map.put(cube.type, new LinkedList<>());
+            map.get(cube.type).add(cube);
+        }
+        return map;
     }
 
-    public boolean hasBit(int src, int bit) {
-        return (src & bit) == bit;
-    }
 }
