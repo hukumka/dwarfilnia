@@ -80,10 +80,6 @@ public class Vec3f {
         this.z = src.z;
     }
 
-    public void copyTo(Vec3f dst){
-        dst.copy(this);
-    }
-
     public void copy(Vec4f src){
         this.x = src.x;
         this.y = src.y;

@@ -64,7 +64,7 @@ public class Vec4f {
     public Vec4f multiMVIn(Mat4f mat){
         synchronized (temp1){
             temp1.multiMVIn(mat, this);
-            this.copyFrom(temp1);
+            this.copy(temp1);
         }
         return this;
     }
@@ -74,7 +74,7 @@ public class Vec4f {
     }
 
     // Копирование
-    public Vec4f copyFrom(Vec4f src){
+    public Vec4f copy(Vec4f src){
         this.x = src.x;
         this.y = src.y;
         this.z = src.z;
@@ -82,23 +82,24 @@ public class Vec4f {
         return this;
     }
 
-    public Vec4f copyFrom(Vec3f vec3f, float w){
+    public Vec4f copy(Vec3f vec3f, float w){
         this.w = w;
-        return copyFrom(vec3f);
+        return copy(vec3f);
     }
 
-    public Vec4f copyFrom(Vec3f src){
+    public Vec4f copy(Vec3f src){
         this.x = src.x;
         this.y = src.y;
         this.z = src.z;
         return this;
     }
 
-    public Vec3f copyTo(Vec3f dst){
-        dst.x = this.x;
-        dst.y = this.y;
-        dst.z = this.z;
-        return dst;
+    public Vec4f copy(float x, float y, float z, float w){
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+        return this;
     }
 
     public double length4d(){

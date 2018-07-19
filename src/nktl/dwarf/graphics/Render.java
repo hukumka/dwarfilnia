@@ -14,6 +14,7 @@ import nktl.dwarf.DwarfMap;
 import nktl.dwarf.GeneratorException;
 import nktl.math.geom.Vec3i;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -25,9 +26,10 @@ import static com.jogamp.opengl.GL4.*;
 public class Render extends ZRender {
     private Vec4f lightPosition_world = new Vec4f(2f, 2f, 0f, 1f);
     private Vec4f lightPosition_cam = new Vec4f();
-    private int[] vao = new int[1];
+    private int[] vao;
     private int indNum = 0;
-    private int triNum = 0;
+    private Vec4f[] colors;
+    private int triNum[];
 
     @Override
     public void init(GLAutoDrawable glad) {
@@ -39,48 +41,41 @@ public class Render extends ZRender {
         gl.glEnable(GL_CULL_FACE);
         //gl.glCullFace(GL_BACK);
 
-        DwarfGen generator = new DwarfGen();
-        generator.getSet().setSeed(45825243);
-        DwarfMap map;
-        LinkedList<Cube> cubes = new LinkedList<>();
+
 
         try {
-            map = generator.genMap(new Vec3i(10, 10, 10), null);
-            Vec3i main = map.graph().getNodes().next().data().position();//cubes.getFirst().getVertices()[0];
+            // Начало картежной фигни
+            DwarfGen gen = new DwarfGen();
+            gen.settings()
+                    .setSeed(45825243)
+                    .setWayRatio(100, 50, 20, 10, 5, 1)
+                    .setDimensions(11, 11, 11);
+
+            DwarfMap map = gen.genMap();
+            Vec3i main = map.graph().getNodes().next().data().position();
+
+            LinkedList<DwarfCube> mcubes = map.getCubes();
+            System.out.println("Получено кубов: " + mcubes.size());
+            var cubeMap = DwarfCube.separate(mcubes);
+            // Конец картежной фигни
+
+
             cam.setPosition(main.x, main.y, main.z);
 
-            for (DwarfCube cube : map.cubes()){
-                cubes.add(new Cube(0, Cube.zxy(cube.position())));
+            vao = new int[cubeMap.keySet().size()];
+            triNum = new int[vao.length];
+            colors = new Vec4f[vao.length];
+
+            int offset = 0;
+            for (DwarfCube.CubeType type : cubeMap.keySet()){
+                asVAO(gl, vao, triNum, offset, cubeMap.get(type));
+                colors[offset] = getColor(type);
+                offset++;
             }
+
         } catch (GeneratorException e) {
             e.printStackTrace();
         }
-
-        LinkedList<Triangle> tsList = new LinkedList<>();
-        for (Cube c : cubes) {
-            Triangle[] locts = c.getTriangles();
-            Collections.addAll(tsList, locts);
-        }
-
-        Triangle[]ts = tsList.toArray(new Triangle[0]);
-        triNum = ts.length;
-
-        System.out.println("Triangles : " + ts.length);
-
-        float[] kek = new float[ts.length * 9];
-        for (int i = 0; i < ts.length; i++) {
-            System.out.println("\nTriangle " + i);
-            int j = i*9;
-            for (Vertex v : ts[i].getVs()){
-                kek[j] = v.x;
-                kek[j+1] = v.y;
-                kek[j+2] = v.z;
-                j+=3;
-            }
-        }
-
-
-        ZModelAdapter.createVAO(gl, kek, vao, 0, 3);
 
         //ZModelAdapter.createVAO(gl, points, vao, 0, 3, 4);
         //ZModelAdapter.addIndexesToVAO(gl, indices, vao, 0);
@@ -97,7 +92,7 @@ public class Render extends ZRender {
             progs.put("shader", prog);
             prog.use();
 
-            prog.setUniform("color", new Vec4f(0.5f, 0.5f, 0.5f, 1f));
+
             prog.setUniform("Specular", new Vec4f(0.8f, 1f));
             prog.setUniform("Intensity", new Vec4f(0.7f, 1f));
             prog.setUniform("light_pos", new Vec3f());
@@ -132,8 +127,13 @@ public class Render extends ZRender {
             prog.setUniform("MVP", cam.PVM);
             prog.setUniform("ModelViewMatrix", cam.lookAtM);
 
-            gl.glBindVertexArray(vao[0]);
-            gl.glDrawArrays(GL_TRIANGLES, 0, triNum*3);
+
+            for (int i = 0; i < vao.length; i++) {
+                prog.setUniform("color", colors[i]);
+                gl.glBindVertexArray(vao[i]);
+                gl.glDrawArrays(GL_TRIANGLES, 0, triNum[i]*3);
+            }
+
         } catch (ZShader.ZShaderException e) {
             e.printStackTrace();
         }
@@ -143,6 +143,59 @@ public class Render extends ZRender {
     public void dispose(GLAutoDrawable glad) {
         super.dispose(glad);
         GL4 gl = toGL(glad);
-        gl.glDeleteVertexArrays(1, vao, 0);
+        gl.glDeleteVertexArrays(vao.length, vao, 0);
+    }
+
+    private static void asVAO(GL4 gl, int[] vao, int[]triNum, int offset, Collection<DwarfCube> cube_src){
+        LinkedList<Cube> cubes = new LinkedList<>();
+
+        for (DwarfCube src_cube : cube_src){
+            Cube cube = new Cube(0, src_cube.position());
+            if (src_cube.features().containsKey(DwarfCube.Feature.WAY))
+                cube.addDirectionBits(src_cube.features().get(DwarfCube.Feature.WAY));
+            cubes.add(cube);
+        }
+
+        LinkedList<Triangle> tsList = new LinkedList<>();
+        for (Cube c : cubes) {
+            Triangle[] locts = c.getTriangles();
+            Collections.addAll(tsList, locts);
+        }
+
+        Triangle[]ts = tsList.toArray(new Triangle[0]);
+        triNum[offset] = ts.length;
+
+        float[] kek = new float[ts.length * 9];
+        for (int i = 0; i < ts.length; i++) {
+            int j = i*9;
+            for (Vertex v : ts[i].getVs()){
+                kek[j] = v.x;
+                kek[j+1] = v.y;
+                kek[j+2] = v.z;
+                j+=3;
+            }
+        }
+
+
+        ZModelAdapter.createVAO(gl, kek, vao, offset, 3);
+    }
+
+    private static Vec4f getColor(DwarfCube.CubeType type){
+        Vec4f color = new Vec4f();
+        switch (type){
+            case TUNNEL:
+                color.copy(.5f, .7f, .5f, 1f); break;
+            case COLLECTOR:
+                color.copy(.5f, .5f, .7f, 1f); break;
+            case PLUG:
+                color.copy(.1f, .1f, .1f, .5f); break;
+            case LADDER:
+                color.copy(.7f, .7f, .5f, 1f); break;
+            case STAIRS:
+                color.copy(.7f, .5f, .5f, 1f); break;
+            default:
+                color.copy(.5f, .5f, .5f, 1f); break;
+        }
+        return color;
     }
 }

@@ -25,6 +25,13 @@ public class Vec3i {
         return new Vec3i(x + other.x, y + other.y, z + other.z);
     }
 
+    public Vec3i plusIn(Vec3i src) {
+        this.x += src.x;
+        this.y += src.y;
+        this.z += src.z;
+        return this;
+    }
+
     public Vec3i mult(int k){
         return new Vec3i(x*k, y*k, z*k);
     }
