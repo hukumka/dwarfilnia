@@ -30,6 +30,7 @@ public class Render extends ZRender {
     private int indNum = 0;
     private Vec4f[] colors;
     private int triNum[];
+    private Mat4f vpm = Mat4f.genIden();
 
     @Override
     public void init(GLAutoDrawable glad) {
@@ -126,7 +127,7 @@ public class Render extends ZRender {
             prog.use();
             prog.setUniform("MVP", cam.PVM);
             prog.setUniform("ModelViewMatrix", cam.lookAtM);
-
+            prog.setUniform("ViewportMatrix", vpm);
 
             for (int i = 0; i < vao.length; i++) {
                 prog.setUniform("color", colors[i]);
@@ -144,6 +145,17 @@ public class Render extends ZRender {
         super.dispose(glad);
         GL4 gl = toGL(glad);
         gl.glDeleteVertexArrays(vao.length, vao, 0);
+    }
+
+    @Override
+    public void reshape(GLAutoDrawable glad, int x, int y, int width, int height) {
+        super.reshape(glad, x, y, width, height);
+        recountVPM(width, height);
+    }
+
+    private void recountVPM(int w, int h){
+        vpm.arr[0] = vpm.arr[3] = w/2;
+        vpm.arr[5] = vpm.arr[7] = h/2;
     }
 
     private static void asVAO(GL4 gl, int[] vao, int[]triNum, int offset, Collection<DwarfCube> cube_src){

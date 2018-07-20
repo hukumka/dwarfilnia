@@ -153,10 +153,10 @@ public class Cube {
             System.arraycopy(def, 0, out, 0, def.length);
             int offset = def.length;
             out[offset] = new Triangle(lvs[0], lvs[1], lvs[2]);
-            out[offset+1] = new Triangle(lvs[1], lvs[2], lvs[3]);
+            out[offset+1] = new Triangle(lvs[2], lvs[1], lvs[3]);
             out[offset+2] = new Triangle(lvs[4], lvs[5], lvs[6]);
-            out[offset+3] = new Triangle(lvs[5], lvs[6], lvs[7]);
-            out[offset+4] = new Triangle(lvs[8], lvs[9], lvs[10]);
+            out[offset+3] = new Triangle(lvs[6], lvs[5], lvs[7]);
+            out[offset+4] = new Triangle(lvs[9], lvs[8], lvs[10]);
             out[offset+5] = new Triangle(lvs[9], lvs[10], lvs[11]);
             return out;
         }
