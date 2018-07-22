@@ -17,13 +17,12 @@ vec4 getColor(){
     vec3 s = normalize(light_pos.xyz - pos);
     vec3 h = normalize(v+s);
 
-    //float len = length(pos);
-    //float dm = 1/(len*len);
-
+    float len = length(pos);
+    float dm = 0.1/(len*len);
 
     float sDotN = max(dot(s, n), 0.0);
 
-    return Intensity * (color*(1 + sDotN) + Specular * pow(max(dot(h, n), 0.0), 100));// * dm;
+    return Intensity * (color*(1 + sDotN) + Specular * dm * pow(max(dot(h, n), 0.0), 100));// * dm;
 
 }
 

@@ -62,12 +62,12 @@ public enum DwarfDirection {
      */
 
     public static final int
-            BIT_POS_X = POS_X.bit,
-            BIT_POS_Z = POS_Z.bit,
-            BIT_NEG_X = NEG_X.bit,
-            BIT_NEG_Z = NEG_Z.bit,
-            BIT_POS_Y = POS_Y.bit,
-            BIT_NEG_Y = NEG_Y.bit;
+            BIT_POS_X = 0b1,
+            BIT_POS_Z = 0b10,
+            BIT_NEG_X = 0b100,
+            BIT_NEG_Z = 0b1000,
+            BIT_POS_Y = 0b10000,
+            BIT_NEG_Y = 0b100000;
 
     public static int rotateDir180(int dir){
         return (dir & 0b110000) + (((((dir & 0b1111) * 0b10001) << 2) & 0b11110000) >> 4);

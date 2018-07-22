@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import static nktl.dwarf.DwarfCube.CubeType;
+import static nktl.dwarf.DwarfCube.CubeType.*;
 import static nktl.dwarf.DwarfCube.Feature;
 
 public class DwarfMap {
@@ -105,7 +105,7 @@ public class DwarfMap {
                 && rangeZ.has(pos.z);
         if (!has) return false;
         DwarfCube cube = cubeAt(pos);
-        if (cube != null && cube.type==CubeType.PLUG)
+        if (cube != null && cube.type==PLUG)
             has = false;
         return has;
     }
@@ -113,7 +113,7 @@ public class DwarfMap {
     public LinkedList<DwarfCube> getCubes(){
         LinkedList<DwarfCube> cubes = new LinkedList<>();
         for (DwarfCube cube : map){
-            if (cube != null && cube.type != CubeType.PLUG){
+            if (cube != null && cube.type != PLUG){
                 fixWaysAndType(cube);
                 cubes.add(cube);
             }
@@ -134,7 +134,7 @@ public class DwarfMap {
     private void fixWaysAndType(DwarfCube cube){
         switch (cube.type){
             case UNKNOWN:
-                cube.type = CubeType.TUNNEL;
+                cube.type = TUNNEL;
             case TUNNEL:
                 for (DwarfDirection dir : DwarfDirection.getHorizontal()){
                     DwarfCube nbr = getNeighbour(cube.position, dir);
@@ -157,10 +157,10 @@ public class DwarfMap {
                 DwarfCube up = getNeighbour(cube.position, DwarfDirection.POS_Y);
                 DwarfCube down = getNeighbour(cube.position, DwarfDirection.NEG_Y);
                 if (up != null)
-                    if (up.type == CubeType.LADDER)
+                    if (up.type == LADDER)
                         cube.addBit(Feature.WAY, DwarfDirection.POS_Y.bit);
                 if (down!= null)
-                    if (down.type == CubeType.LADDER)
+                    if (down.type == LADDER || down.type == COLLECTOR)
                         cube.addBit(Feature.WAY, DwarfDirection.NEG_Y.bit);
                 break;
             case COLLECTOR:
@@ -177,10 +177,10 @@ public class DwarfMap {
                     up = getNeighbour(cube.position, DwarfDirection.POS_Y);
                     down = getNeighbour(cube.position, DwarfDirection.NEG_Y);
                     if (up != null)
-                        if (up.type == CubeType.COLLECTOR)
+                        if (up.type == COLLECTOR || up.type == LADDER)
                             cube.addBit(Feature.WAY, DwarfDirection.POS_Y.bit);
                     if (down!= null)
-                        if (down.type == CubeType.COLLECTOR)
+                        if (down.type == COLLECTOR)
                             cube.addBit(Feature.WAY, DwarfDirection.NEG_Y.bit);
                 }
                 break;

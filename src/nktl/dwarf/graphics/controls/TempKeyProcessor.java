@@ -24,7 +24,7 @@ public class TempKeyProcessor extends ZKeyProcessor{
 
     // Скорость перемещения. Потом сделаю чтобы загружалась с ini-шника и могла меняться
     private static final float
-            minSpeed = 0.005f,
+            minSpeed = 0.001f,
             step = 0.001f,
             maxSpeed = minSpeed + 45 * step;
 
@@ -37,7 +37,7 @@ public class TempKeyProcessor extends ZKeyProcessor{
 
     public TempKeyProcessor(ZKeyboardHandler handler, ZActionMap actionMap, ZEyeInterface camera) {
         super(handler, actionMap);
-        recountMoveSpeed(minSpeed);
+        recountMoveSpeed(minSpeed*5);
         this.camera = camera;
     }
 

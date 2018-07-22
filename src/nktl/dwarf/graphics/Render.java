@@ -39,7 +39,7 @@ public class Render extends ZRender {
         gl.glEnable(GL_DEPTH_TEST);
         //gl.glEnable(GL_BLEND);
         //gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        gl.glEnable(GL_CULL_FACE);
+        //gl.glEnable(GL_CULL_FACE);
         //gl.glCullFace(GL_BACK);
 
 
@@ -144,7 +144,8 @@ public class Render extends ZRender {
     public void dispose(GLAutoDrawable glad) {
         super.dispose(glad);
         GL4 gl = toGL(glad);
-        gl.glDeleteVertexArrays(vao.length, vao, 0);
+        if (vao != null)
+            gl.glDeleteVertexArrays(vao.length, vao, 0);
     }
 
     @Override
@@ -159,20 +160,35 @@ public class Render extends ZRender {
     }
 
     private static void asVAO(GL4 gl, int[] vao, int[]triNum, int offset, Collection<DwarfCube> cube_src){
-        LinkedList<Cube> cubes = new LinkedList<>();
+        //LinkedList<Cube> cubes = new LinkedList<>();
+        LinkedList<Triangle> tsList = new LinkedList<>();
 
         for (DwarfCube src_cube : cube_src){
-            Cube cube = Cube.make(0, src_cube.position(), src_cube);
-            if (src_cube.features().containsKey(DwarfCube.Feature.WAY))
-                cube.addDirectionBits(src_cube.features().get(DwarfCube.Feature.WAY));
-            cubes.add(cube);
+            Triangle[] locTs;
+
+            switch (src_cube.type()){
+                case TUNNEL:
+                    locTs = Element.glTunnel(src_cube); break;
+                case LADDER:
+                    locTs = Element.glLadder(src_cube); break;
+                case COLLECTOR:
+                    locTs = Element.glTunnel(src_cube); break;
+                default:
+                    Cube cube = Cube.make(0, src_cube.position(), src_cube);
+                    if (src_cube.features().containsKey(DwarfCube.Feature.WAY))
+                        cube.addDirectionBits(src_cube.features().get(DwarfCube.Feature.WAY));
+                    //cubes.add(cube);
+                    locTs = cube.getTriangles();
+                    break;
+            }
+
+            Collections.addAll(tsList, locTs);
         }
 
-        LinkedList<Triangle> tsList = new LinkedList<>();
-        for (Cube c : cubes) {
-            Triangle[] locts = c.getTriangles();
-            Collections.addAll(tsList, locts);
-        }
+        //for (Cube c : cubes) {
+        //    Triangle[] locts = c.getTriangles();
+        //    Collections.addAll(tsList, locts);
+        //}
 
         Triangle[]ts = tsList.toArray(new Triangle[0]);
         triNum[offset] = ts.length;
