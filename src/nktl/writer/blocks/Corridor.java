@@ -1,6 +1,7 @@
 package nktl.writer.blocks;
 
-import nktl.generator.DwarfCube;
+import nktl.dwarf.DwarfCube;
+import nktl.dwarf.DwarfDirection;
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
@@ -10,10 +11,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Corridor implements DwarfBlock{
-    private int data=0xf;
+    public static Corridor from_dwarf_cube(DwarfCube cube) {
+        Corridor block = new Corridor();
+        if (cube.features().containsKey(DwarfCube.Feature.WAY)) {
+            int ways = cube.features().get(DwarfCube.Feature.WAY);
+            boolean[] is_open = {
+                    (ways & DwarfDirection.BIT_POS_X) > 0, // EAST
+                    (ways & DwarfDirection.BIT_NEG_Z) > 0, // NORTH
+                    (ways & DwarfDirection.BIT_NEG_X) > 0, // WEST
+                    (ways & DwarfDirection.BIT_POS_Z) > 0, // SOUTH
+            };
+            block.set_ways(is_open);
+        }
+        return block;
+    }
 
-    public Corridor setData(int data){
-        this.data = data;
+
+    // E N W S
+    boolean[] is_open = {false, false, false, false};
+
+    public Corridor set_ways(boolean[] ways){
+        is_open = ways;
         return this;
     }
 
@@ -36,10 +54,18 @@ public class Corridor implements DwarfBlock{
 
         Vec3i center = position.plus(2, 2, 2);
         // create stairs
-        int[] directionBits = {DwarfCube.DIRECTION_WEST_BIT, DwarfCube.DIRECTION_SOUTH_BIT, DwarfCube.DIRECTION_EAST_BIT, DwarfCube.DIRECTION_NORTH_BIT};
+        commands.addAll(generateStairs(center, is_open));
+
+        for(Fill f: commands){
+            f.runIn(process);
+        }
+    }
+
+    private ArrayList<Fill> generateStairs(Vec3i center, boolean[] is_open){
+        ArrayList<Fill> commands = new ArrayList<>();
         for(int i=0; i<4; ++i){
-            boolean backOpen = is(directionBits[i]);
-            boolean leftOpen = is(directionBits[(i+3)%4]);
+            boolean backOpen = is_open[(i+2)%4];
+            boolean leftOpen = is_open[(i+5)%4];
             for(Fill f: buildCorner(center, backOpen, leftOpen)){
                 for(int j=0; j<i; ++j){
                     f.rotate90Y(center.x, center.z);
@@ -47,13 +73,7 @@ public class Corridor implements DwarfBlock{
                 commands.add(f);
             }
         }
-        for(Fill f: commands){
-            f.runIn(process);
-        }
-    }
-
-    private boolean is(int bit){
-        return (data & bit) > 0;
+        return commands;
     }
 
     private ArrayList<Fill> buildCorner(Vec3i center, boolean backOpen, boolean leftOpen){

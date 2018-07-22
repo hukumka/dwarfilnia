@@ -1,41 +1,47 @@
 package nktl.writer.tests;
 
-import nktl.generator.DwarfCube;
-import nktl.generator.DwarfMap;
-import nktl.generator.Generator;
+import nktl.dwarf.DwarfGen;
+import nktl.dwarf.DwarfMap;
 import nktl.math.geom.Vec3i;
+import nktl.server.MinecraftRMIProcess;
 import nktl.writer.MapWriter;
 import nktl.writer.RMIClient;
+import nktl.writer.blocks.Corridor;
 
 
 public class TestMap {
     public static void main(String[] args){
         try {
-             DwarfCube[] ladders = {
-                new DwarfCube(new Vec3i(15, 15, 0)),
-                new DwarfCube(new Vec3i(25, 20, 0)),
-                new DwarfCube(new Vec3i(30, 10, 0))
-            };
+            DwarfGen generator = new DwarfGen();
 
-            for (DwarfCube ladder : ladders){
-                ladder.setType(DwarfCube.TYPE_VERTICAL_LADDER);
-                ladder.addDirBit(DwarfCube.DATA_NORTH_BIT);
-            }
-
-            Generator generator = new Generator()
-                    .setWayNumRelation(100, 33, 9)
+            generator.settings()
                     .setSeed(45825243)
-                    //.setSeed((long) (Math.random()*2*Long.MAX_VALUE - Long.MAX_VALUE))
-                    .setLoopProbability(0.2)
-                    .setLenBeforeTurn(3, 5);
-            DwarfMap dm = generator.generateMap(30, 30, 1, ladders);
+                    .setWayRatio(100, 50, 20, 10, 5, 1)
+                    .setDimensions(11, 11, 11);
+            DwarfMap dm = generator.genMap();
 
             MapWriter writer = new MapWriter()
                     .setProcess(new RMIClient().getProcess())
                     .setUsedPlayer("hukumka")
-                    .setOffset(new Vec3i(-200, 120, -200));
+                    .setOffset(new Vec3i(-1000, 160, -800));
 
             writer.writeMap(dm);
+            /*
+            RMIClient client = new RMIClient();
+            MinecraftRMIProcess process = client.getProcess();
+            for(int i=0; i<16; ++i){
+                Corridor c = new Corridor();
+                boolean w[] = {
+                        (i&1) > 0,
+                        (i&2) > 0,
+                        (i&4) > 0,
+                        (i&8) > 0,
+                };
+                c.set_ways(w);
+                c.placeAt(process, new Vec3i(-600, 140, -420).plus(0, 5*i, 0));
+            }
+            */
+
 
         }catch(Exception e){
             e.printStackTrace();

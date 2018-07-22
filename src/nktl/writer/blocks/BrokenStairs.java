@@ -1,5 +1,7 @@
 package nktl.writer.blocks;
 
+import nktl.dwarf.DwarfCube;
+import nktl.dwarf.DwarfDirection;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
 import nktl.server.commands.Fill;
@@ -21,6 +23,15 @@ public class BrokenStairs extends Stairs{
     }
     public BrokenStairs setLower(boolean is){
         isLower = is;
+        return this;
+    }
+
+    @Override
+    public BrokenStairs get_features(DwarfCube cube){
+        super.get_features(cube);
+        int destruction = cube.features().get(DwarfCube.Feature.DESTRUCTION);
+        setUpper((destruction&DwarfDirection.BIT_POS_Y)>0);
+        setLower((destruction&DwarfDirection.BIT_NEG_Y)>0);
         return this;
     }
 

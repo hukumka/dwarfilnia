@@ -1,6 +1,8 @@
 package nktl.writer.blocks;
 
 
+import nktl.dwarf.DwarfCube;
+import nktl.dwarf.DwarfDirection;
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
@@ -11,6 +13,27 @@ import java.util.ArrayList;
 
 public class Stairs implements DwarfBlock{
     Direction direction=Direction.EAST;
+
+    public Stairs get_features(DwarfCube cube){
+        if(cube.features().containsKey(DwarfCube.Feature.WAY)){
+            int way = cube.features().get(DwarfCube.Feature.WAY);
+            System.out.println(way);
+            Direction dir = null;
+            if((way&DwarfDirection.BIT_POS_X)>0){
+                dir = Direction.EAST;
+            }else if((way&DwarfDirection.BIT_NEG_X) > 0) {
+                dir = Direction.WEST;
+            }else if((way&DwarfDirection.BIT_POS_Z) > 0) {
+                dir = Direction.SOUTH;
+            }else if((way&DwarfDirection.BIT_NEG_Z) > 0) {
+                dir = Direction.NORTH;
+            }
+            if(dir != null){
+                this.setDirection(dir);
+            }
+        }
+        return this;
+    }
 
     public Stairs setDirection(Direction direction){
         this.direction = direction;

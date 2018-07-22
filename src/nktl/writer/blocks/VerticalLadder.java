@@ -1,6 +1,7 @@
 package nktl.writer.blocks;
 
-import nktl.generator.DwarfCube;
+import nktl.dwarf.DwarfCube;
+import nktl.dwarf.DwarfDirection;
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
@@ -13,6 +14,17 @@ public class VerticalLadder implements DwarfBlock {
     boolean bottom = false;
     Direction direction = Direction.NORTH;
     int ways = 0xf;
+
+
+    static public VerticalLadder from_dwarf_cube(DwarfCube cube){
+        VerticalLadder res = new VerticalLadder();
+        if(cube.features().containsKey(DwarfCube.Feature.WAY)){
+            res.setWays(cube.features().get(DwarfCube.Feature.WAY));
+        }
+        res.top = (res.ways&DwarfDirection.BIT_POS_Y) == 0;
+        res.bottom = (res.ways&DwarfDirection.BIT_NEG_Y) == 0;
+        return res;
+    }
 
     public VerticalLadder setDirection(Direction direction){
         this.direction = direction;
@@ -82,19 +94,19 @@ public class VerticalLadder implements DwarfBlock {
                 .dataValue(5)
                 .runIn(process);
 
-        if((ways&DwarfCube.DIRECTION_WEST_BIT) > 0){
+        if((ways&DwarfDirection.BIT_NEG_X) > 0){ // WEST
             new Fill(position.plus(-1, 1, 1), position.plus(-1, 3, 3), "minecraft:air")
                     .runIn(process);
         }
-        if((ways&DwarfCube.DIRECTION_EAST_BIT) > 0){
+        if((ways&DwarfDirection.BIT_POS_X) > 0){ // EAST
             new Fill(position.plus(5, 1, 1), position.plus(5, 3, 3), "minecraft:air")
                     .runIn(process);
         }
-        if((ways&DwarfCube.DIRECTION_SOUTH_BIT) > 0){
+        if((ways&DwarfDirection.BIT_POS_Z) > 0){ // SOUTH
             new Fill(position.plus(1, 1, 5), position.plus(3, 3, 5), "minecraft:air")
                     .runIn(process);
         }
-        if((ways&DwarfCube.DIRECTION_NORTH_BIT) > 0){
+        if((ways&DwarfDirection.BIT_NEG_Z) > 0){ // NORTH
             new Fill(position.plus(1, 1, -1), position.plus(3, 3, -1), "minecraft:air")
                     .runIn(process);
         }

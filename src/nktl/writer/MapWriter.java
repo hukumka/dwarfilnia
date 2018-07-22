@@ -1,8 +1,8 @@
 package nktl.writer;
 
-import nktl.generator.DwarfCube;
-import nktl.generator.DwarfList;
-import nktl.generator.DwarfMap;
+import nktl.dwarf.DwarfCube;
+import nktl.dwarf.DwarfGen;
+import nktl.dwarf.DwarfMap;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
 import nktl.server.commands.TeleportPlayer;
@@ -12,6 +12,8 @@ import nktl.writer.blocks.Stairs;
 import nktl.writer.blocks.VerticalLadder;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 public class MapWriter {
     private Vec3i offset = null;
@@ -42,14 +44,21 @@ public class MapWriter {
 
     public void writeMap(DwarfMap map) throws IOException {
         try{
-            DwarfList list = map.toCubeList();
-            ChuckMap cm = new ChuckMap(list.get5x5());
-            for(ChuckMap.Chunk c: cm){
-                writeChunk(c);
-            }
-            cm = new ChuckMap(list.get7x7());
-            for(ChuckMap.Chunk c: cm){
-                writeChunk(c);
+            HashMap<DwarfCube.CubeType, LinkedList<DwarfCube>> cubes = DwarfCube.separate(map.getCubes());
+            LinkedList[] order = {
+                    cubes.get(DwarfCube.CubeType.TUNNEL),
+                    cubes.get(DwarfCube.CubeType.LADDER),
+                    cubes.get(DwarfCube.CubeType.COLLECTOR),
+                    cubes.get(DwarfCube.CubeType.STAIRS),
+            };
+            for(LinkedList t: order){
+                t = (LinkedList<DwarfCube>) t;
+                if(t != null){
+                    ChuckMap m = new ChuckMap(t);
+                    for (ChuckMap.Chunk c : m) {
+                        writeChunk(c);
+                    }
+                }
             }
         }catch (InterruptedException e){
             e.printStackTrace();
@@ -69,22 +78,9 @@ public class MapWriter {
             Thread.sleep(sleepBetweenChunks);
         }
         for(DwarfCube c: chunk.list()){
-            DwarfBlock block = null;
-            switch (c.getType()){
-                case DwarfCube.TYPE_TUNNEL:
-                    block = new Corridor().setData(c.getDirection());
-                    break;
-                case DwarfCube.TYPE_VERTICAL_LADDER:
-                    block = new VerticalLadder()
-                            .setWays(c.getDirection())
-                            .setDirection(c.enumDirection());
-                    break;
-                case DwarfCube.TYPE_DIAGONAL_LADDER:
-                    block = new Stairs()
-                            .setDirection(c.enumDirection());
-            }
+            DwarfBlock block = DwarfBlock.from_dwarf_cube(c);
             if(block != null){
-                block.placeAt(process, mapToWorld(c.getPosition()));
+                block.placeAt(process, mapToWorld(c.position()));
 
                 if(sleepBetweenCubes > 0) {
                     Thread.sleep(sleepBetweenCubes);
@@ -99,7 +95,7 @@ public class MapWriter {
     }
 
     private Vec3i mapToWorld(Vec3i mapCoordinates){
-        return offset.plus(mapCoordinates.x*5, mapCoordinates.z*5, -mapCoordinates.y*5);
+        return offset.plus(mapCoordinates.x*5, mapCoordinates.y*5, mapCoordinates.z*5);
     }
 
 }

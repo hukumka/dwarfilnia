@@ -1,7 +1,7 @@
 package nktl.writer;
 
-import nktl.generator.DwarfCube;
-import nktl.generator.DwarfMap;
+import nktl.dwarf.DwarfCube;
+import nktl.dwarf.DwarfMap;
 import nktl.math.geom.Vec3i;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class ChuckMap implements Iterable<ChuckMap.Chunk>{
     }
 
     void addCube(DwarfCube c){
-        Vec3i pos = c.getPosition();
+        Vec3i pos = c.position();
         Vec3i chunkId = new Vec3i(pos.x/chunkSize, pos.y/chunkSize, pos.z/chunkSize);
         Chunk chunk = chucks.get(chunkId);
         if(chunk == null){
