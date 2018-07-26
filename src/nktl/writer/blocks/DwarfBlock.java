@@ -22,7 +22,10 @@ public interface DwarfBlock {
             stairs.get_features(cube);
             return stairs;
         }else if(cube.type() == DwarfCube.CubeType.COLLECTOR) {
-            return VerticalLadder.from_dwarf_cube(cube);
+            System.out.println("Collector");
+            Collector collector = new Collector();
+            collector.get_features(cube);
+            return collector;
         }else{
             return null;
         }

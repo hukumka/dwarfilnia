@@ -23,10 +23,14 @@ public class Corridor implements DwarfBlock{
             };
             block.set_ways(is_open);
         }
+        if(cube.features().containsKey(DwarfCube.Feature.SEWER)){
+            block.sewers = cube.features().get(DwarfCube.Feature.SEWER);
+        }
         return block;
     }
 
 
+    int sewers = 0;
     // E N W S
     boolean[] is_open = {false, false, false, false};
 
@@ -55,6 +59,27 @@ public class Corridor implements DwarfBlock{
         Vec3i center = position.plus(2, 2, 2);
         // create stairs
         commands.addAll(generateStairs(center, is_open));
+
+        if((sewers&DwarfDirection.BIT_POS_X)>0){
+            commands.add(
+                    new Fill(position.plus(2, 0, 2), position.plus(4, 0, 2), "minecraft:air")
+            );
+        }
+        if((sewers&DwarfDirection.BIT_NEG_X)>0){
+            commands.add(
+                    new Fill(position.plus(2, 0, 2), position.plus(0, 0, 2), "minecraft:air")
+            );
+        }
+        if((sewers&DwarfDirection.BIT_NEG_Y)>0){
+            commands.add(
+                    new Fill(position.plus(2, 0, 2), position.plus(2, 0, 0), "minecraft:air")
+            );
+        }
+        if((sewers&DwarfDirection.BIT_POS_Y)>0){
+            commands.add(
+                    new Fill(position.plus(2, 0, 2), position.plus(2, 0, 4), "minecraft:air")
+            );
+        }
 
         for(Fill f: commands){
             f.runIn(process);
