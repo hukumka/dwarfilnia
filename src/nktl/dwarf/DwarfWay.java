@@ -3,7 +3,9 @@ package nktl.dwarf;
 import nktl.math.geom.Vec3i;
 import nktl.math.graph.Graph;
 
-import static nktl.dwarf.DwarfCube.CubeType;
+import java.util.LinkedList;
+
+import static nktl.dwarf.DwarfCube.CubeType.*;
 
 class DwarfWay extends Vec3i {
 
@@ -29,7 +31,7 @@ class DwarfWay extends Vec3i {
         DwarfCube cube = map.cubeAt(this);
         this.node = cube.node;
         if (dir.isHorizontal) {
-            if (cube.type == CubeType.LADDER || cube.type == CubeType.COLLECTOR)
+            if (cube.type == LADDER || cube.type == COLLECTOR)
                 type = DwarfDigger.Type.TUNNEL;
             else
                 type = set.makeStairs() ?
@@ -82,13 +84,13 @@ class DwarfWay extends Vec3i {
         boolean makeCollector = false;
         for (DwarfWay way : ways) {
             if (way.dir == DwarfDirection.POS_Y || (way.dir == DwarfDirection.NEG_Y && !way.oneWay)){
-                map.cubeAt(pos).type = CubeType.LADDER;
+                map.cubeAt(pos).type = LADDER;
                 return;
             }
             if (way.dir == DwarfDirection.NEG_Y) makeCollector = true;
         }
         if (makeCollector)
-            map.cubeAt(pos).type = CubeType.COLLECTOR;
+            map.cubeAt(pos).type = COLLECTOR;
     }
 
     // Этот и следующий: проверяют свободные пути
@@ -99,26 +101,26 @@ class DwarfWay extends Vec3i {
     }
 
     private static DwarfDirection[] getPossibleWays(DwarfMap map, Vec3i pos) {
-
-        DwarfDirection[] dirs = DwarfDirection.values();
-        // TODO: 19.07.2018
-
-        int clearDirNum = dirs.length;
-        for (int i = 0; i < dirs.length; i++) {
-            if (!dirIsClear(map, pos, dirs[i])){
-                dirs[i] = null;
-                --clearDirNum;
-            }
+        var dirList = new LinkedList<DwarfDirection>();
+        boolean addVert = true;
+        for (var side : DwarfDirection.getHorizontal()){
+            Vec3i p = pos.plus(side.increment);
+            if (!map.hasPosition(p)) continue;
+            DwarfCube nb = map.cubeAt(p);
+            if (nb == null) dirList.add(side);
+            else if (nb.type == STAIRS || nb.type == LADDER || nb.type == COLLECTOR)
+                addVert = false;
         }
-        DwarfDirection[] clearDirs = new DwarfDirection[clearDirNum];
-        for (int i = 0, j = 0; i < dirs.length; i++) {
-            if (dirs[i] != null) {
-                clearDirs[j] = dirs[i];
-                ++j;
-            }
+        if (addVert){
+            if (dirIsClear(map, pos, DwarfDirection.POS_Y))
+                dirList.add(DwarfDirection.POS_Y);
+            if (dirIsClear(map, pos, DwarfDirection.NEG_Y))
+                dirList.add(DwarfDirection.NEG_Y);
         }
-        return clearDirs;
+
+        return dirList.toArray(new DwarfDirection[0]);
     }
+
 
     // Берёт n направлений из src
     private static DwarfDirection[] getRandomDirs(DwarfSet set, DwarfDirection[]src, int n){

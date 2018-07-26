@@ -5,6 +5,10 @@ import nktl.math.geom.Vec3i;
 import java.util.Collections;
 import java.util.LinkedList;
 
+import static nktl.dwarf.DwarfCube.CubeType.*;
+import static nktl.dwarf.DwarfDirection.NEG_Y;
+import static nktl.dwarf.DwarfDirection.POS_Y;
+
 public class DwarfGen {
 
     /*
@@ -29,6 +33,10 @@ public class DwarfGen {
             //if (ways.isEmpty())
             //    ways = getBorderWays(map, ways);
         } while (!ways.isEmpty());
+
+        for (DwarfCube cube : map.array())
+            if (cube != null)
+                fixWaysAndType(map, cube);
 
         return map;
     }
@@ -79,5 +87,104 @@ public class DwarfGen {
 
     private LinkedList<DwarfWay> asWays(DwarfMap map, Vec3i[]positions) throws GeneratorException {
         return asWays(new LinkedList<>(), map, positions);
+    }
+
+
+    /*
+        ФИКСЕРЫ БИТОВ
+     */
+    private void fixWaysAndType(DwarfMap map, DwarfCube cube){
+        switch (cube.type){
+            case UNKNOWN:
+                cube.type = TUNNEL;
+            case TUNNEL:
+                fixTunnelBits(map, cube);
+                break;
+            case LADDER:
+                fixLadderBits(map, cube);
+                break;
+            case COLLECTOR:
+                fixCollectorBits(map, cube);
+                break;
+            case STAIRS:
+                //if (up!= null && up.type == STAIRS)
+                break;
+        }
+    }
+
+    private static void fixTunnelBits(DwarfMap map, DwarfCube cube){
+        for (DwarfDirection dir : DwarfDirection.getHorizontal()){
+            DwarfCube nbr = map.getNeighbour(cube.position, dir);
+            if (nbr == null) continue;
+            if (nbr.type == STAIRS){
+                int stDir = nbr.features.get(DwarfCube.Feature.WAY);
+                if (stDir != dir.bit && stDir != dir.getBack().bit)
+                    continue;
+            }
+            if (nbr.type == COLLECTOR && nbr.features.containsKey(DwarfCube.Feature.WATER))
+                continue;
+            cube.addBit(DwarfCube.Feature.WAY, dir.bit);
+        }
+        DwarfCube up = map.getNeighbour(cube.position, POS_Y);
+        DwarfCube down = map.getNeighbour(cube.position, NEG_Y);
+        if (up != null && up.type == STAIRS)
+            cube.addBit(DwarfCube.Feature.WAY, POS_Y.bit);
+        if (down != null && down.type == STAIRS)
+            cube.addBit(DwarfCube.Feature.WAY, NEG_Y.bit);
+    }
+
+    private static void fixLadderBits(DwarfMap map, DwarfCube cube) {
+        for (DwarfDirection dir : DwarfDirection.getHorizontal()){
+            DwarfCube nbr = map.getNeighbour(cube.position, dir);
+            if (nbr == null) continue;
+            //if (!nbr.hasBit(DwarfCube.Feature.CAGE, dir.getBack().bit) &&
+            //        !nbr.hasBit(DwarfCube.Feature.DOOR, dir.getBack().bit)
+            //        )
+            cube.addBit(DwarfCube.Feature.WAY, dir.bit);
+        }
+        DwarfCube up = map.getNeighbour(cube.position, POS_Y);
+        DwarfCube down = map.getNeighbour(cube.position, NEG_Y);
+        boolean hasVertical = false;
+        if (up != null)
+            if (up.type == LADDER) {
+                cube.addBit(DwarfCube.Feature.WAY, POS_Y.bit);
+                hasVertical = true;
+            }
+        if (down!= null)
+            if (down.type == LADDER || down.type == COLLECTOR) {
+                cube.addBit(DwarfCube.Feature.WAY, NEG_Y.bit);
+                hasVertical = true;
+            }
+        if (!hasVertical)
+            cube.type = TUNNEL;
+    }
+
+    private static void fixCollectorBits(DwarfMap map, DwarfCube cube){
+        if (cube.features().containsKey(DwarfCube.Feature.WATER))
+            cube.features.put(DwarfCube.Feature.WAY, POS_Y.bit);
+        else {
+            for (DwarfDirection dir : DwarfDirection.getHorizontal()){
+                DwarfCube nbr = map.getNeighbour(cube.position, dir);
+                if (nbr == null) continue;
+                if (!nbr.hasBit(DwarfCube.Feature.CAGE, dir.getBack().bit) &&
+                        !nbr.hasBit(DwarfCube.Feature.DOOR, dir.getBack().bit)
+                        ) cube.addBit(DwarfCube.Feature.WAY, dir.bit);
+            }
+            DwarfCube up = map.getNeighbour(cube.position, POS_Y);
+            DwarfCube down = map.getNeighbour(cube.position, NEG_Y);
+            boolean hasVertical = false;
+            if (up != null)
+                if (up.type == COLLECTOR || up.type == LADDER){
+                    cube.addBit(DwarfCube.Feature.WAY, POS_Y.bit);
+                    hasVertical = true;
+                }
+            if (down!= null)
+                if (down.type == COLLECTOR){
+                    cube.addBit(DwarfCube.Feature.WAY, NEG_Y.bit);
+                    hasVertical = true;
+                }
+            if (!hasVertical)
+                cube.type = TUNNEL;
+        }
     }
 }

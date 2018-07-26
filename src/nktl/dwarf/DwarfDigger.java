@@ -120,7 +120,7 @@ public class DwarfDigger {
             way.plusIn(way.dir.increment);
 
             if (!map.hasPosition(way)
-                    || fatAtCorners(map, way)
+                    || hasFatAround(map, way)
                     || map.cubeAt(way) != null){
                 couldNotPlace = true;
                 break;
@@ -177,6 +177,16 @@ public class DwarfDigger {
         int length = 2*set.getLength();
         int dirBit = addInc.y == 1 ? way.dir.bit : way.dir.getBack().bit;
 
+        int sideBit;
+        int vertBit;
+        if (addInc.y > 0){
+            sideBit = NEG_Y.bit;
+            vertBit = POS_Y.bit;
+        } else {
+            sideBit = POS_Y.bit;
+            vertBit = NEG_Y.bit;
+        }
+
         boolean digSide = true;
         boolean couldNotPlace = false;
         boolean notMapPosition = false;
@@ -188,20 +198,21 @@ public class DwarfDigger {
         for (i = 0; i < length; i++) {
             way.plusIn(digSide ? way.dir.increment : addInc);
             notMapPosition = !map.hasPosition(way);
+            if (notMapPosition) break;
             hasCube = map.cubeAt(way) != null;
             fatAtCorners = fatAtCorners(map, way);
             fatNeighbour = fatNeighbour(map, way);
-            couldNotPlace = notMapPosition || hasCube || fatAtCorners || fatNeighbour;
+            couldNotPlace = hasCube || fatAtCorners || fatNeighbour;
             if (couldNotPlace) break;
             DwarfCube cube = map.addCubeAt(way, way.node);
             cube.type = CubeType.STAIRS;
             cube.addBit(Feature.WAY, dirBit);
-            cube.addBit(Feature.DESTRUCTION, digSide ? POS_Y.bit : NEG_Y.bit);
+            cube.addBit(Feature.DESTRUCTION, digSide ? sideBit : vertBit);
             digSide = !digSide;
         }
+        if (notMapPosition) return null;
 
         if (couldNotPlace) {
-            if (notMapPosition) return null;
             if (hasCube) {
                 if (way.oneWay){
                     if (addInc.y > 0){

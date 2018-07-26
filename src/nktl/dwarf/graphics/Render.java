@@ -50,7 +50,7 @@ public class Render extends ZRender {
             gen.settings()
                     .setSeed(45825243)
                     .setWayRatio(100, 50, 20, 10, 5, 1)
-                    .setDimensions(11, 11, 11);
+                    .setDimensions(45, 45, 45);
 
             DwarfMap map = gen.genMap();
             Vec3i main = map.graph().getNodes().next().data().position();
@@ -161,18 +161,25 @@ public class Render extends ZRender {
 
     private static void asVAO(GL4 gl, int[] vao, int[]triNum, int offset, Collection<DwarfCube> cube_src){
         //LinkedList<Cube> cubes = new LinkedList<>();
-        LinkedList<Triangle> tsList = new LinkedList<>();
+        var tsList = new LinkedList<Triangle>();
 
         for (DwarfCube src_cube : cube_src){
             Triangle[] locTs;
 
             switch (src_cube.type()){
+
+                //case ROOT_CUBE:
+                //case UNKNOWN:
                 case TUNNEL:
                     locTs = Element.glTunnel(src_cube); break;
                 case LADDER:
                     locTs = Element.glLadder(src_cube); break;
                 case COLLECTOR:
                     locTs = Element.glTunnel(src_cube); break;
+                case STAIRS:
+                    locTs = Element.glStairs(src_cube); break;
+                case PLUG:
+                    continue;
                 default:
                     Cube cube = Cube.make(0, src_cube.position(), src_cube);
                     if (src_cube.features().containsKey(DwarfCube.Feature.WAY))
@@ -181,6 +188,10 @@ public class Render extends ZRender {
                     locTs = cube.getTriangles();
                     break;
             }
+            if (locTs == null)
+                System.out.println("Cube is null. Type : " + src_cube.type());
+            if (tsList == null)
+                System.out.println("SUPER TUPO");
 
             Collections.addAll(tsList, locTs);
         }

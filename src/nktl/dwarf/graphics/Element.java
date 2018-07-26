@@ -25,12 +25,32 @@ public abstract class Element {
 
     public static Triangle[] glStairs(DwarfCube dCube) {
         var triangles = new LinkedList<Triangle>();
-        if (dCube.features().containsKey(DESTRUCTION)){
 
+        int destruction = dCube.features().getOrDefault(DESTRUCTION, -1);
+        int dir = dCube.features().getOrDefault(WAY, 0);
+        if (destruction == 0) {
+            Stairways ss = new Stairways(dir);
+            ss.shift(dCube.position());
+            System.out.println(dCube.position());
+            return ss.getTriangles();
         } else {
-            // TODO: 22.07.2018
+            Stairway top = destruction == BIT_POS_Y ?
+                    null : new Stairway(dir, true);
+            Stairway bottom = destruction == BIT_NEG_Y ?
+                    null : new Stairway(dir, false);
+
+
+            if (top != null){
+                top.shift(dCube.position());
+                Collections.addAll(triangles, top.getTriangles());
+            }
+            if (bottom != null){
+                bottom.shift(dCube.position());
+                Collections.addAll(triangles, bottom.getTriangles());
+            }
+
         }
-        return null;
+        return triangles.toArray(new Triangle[0]);
     }
 
     public static Triangle[] glLadder(DwarfCube dCube) {
@@ -104,21 +124,9 @@ public abstract class Element {
     /*
         ПРОСТЫЕ КУБЫ
      */
-    public static abstract class AbsCube {
+    public static abstract class Vertices {
         protected Vertex[] vs;
 
-        public AbsCube(Vec3f posAng, Vec3f negAng){
-            vs = new Vertex[]{
-                    new Vertex(negAng.x, negAng.y, negAng.z),
-                    new Vertex(negAng.x, negAng.y, posAng.z),
-                    new Vertex(negAng.x, posAng.y, negAng.z),
-                    new Vertex(negAng.x, posAng.y, posAng.z),
-                    new Vertex(posAng.x, negAng.y, negAng.z),
-                    new Vertex(posAng.x, negAng.y, posAng.z),
-                    new Vertex(posAng.x, posAng.y, negAng.z),
-                    new Vertex(posAng.x, posAng.y, posAng.z)
-            };
-        }
         abstract Triangle[] getTriangles();
 
         public void rotate90(){
@@ -145,9 +153,32 @@ public abstract class Element {
             }
         }
 
+        void shift(Vec3i shift){
+            for (Vertex v : vs)
+                v.plusIn(shift);
+        }
+
         Triangle makeTriangle(int ind1, int ind2, int ind3){
             return new Triangle(vs[ind1], vs[ind2], vs[ind3]);
         }
+    }
+
+
+    public static abstract class AbsCube extends Vertices {
+
+        public AbsCube(Vec3f posAng, Vec3f negAng){
+            vs = new Vertex[]{
+                    new Vertex(negAng.x, negAng.y, negAng.z),
+                    new Vertex(negAng.x, negAng.y, posAng.z),
+                    new Vertex(negAng.x, posAng.y, negAng.z),
+                    new Vertex(negAng.x, posAng.y, posAng.z),
+                    new Vertex(posAng.x, negAng.y, negAng.z),
+                    new Vertex(posAng.x, negAng.y, posAng.z),
+                    new Vertex(posAng.x, posAng.y, negAng.z),
+                    new Vertex(posAng.x, posAng.y, posAng.z)
+            };
+        }
+
     }
 
     public static class CubeIn extends AbsCube {
@@ -223,6 +254,100 @@ public abstract class Element {
                 triangles.add(makeTriangle(4, 2, 6));
             }
             return triangles.toArray(new Triangle[0]);
+        }
+    }
+
+    private static class Stairway extends Vertices {
+
+        Stairway(int dir, boolean top){
+            float A, B, B2;
+            if (top) {
+                A = a; B = b;
+            } else {
+                A = -a; B = -b;
+            }
+            B2 = b;
+
+            vs = new Vertex[]{
+                    new Vertex(B2, B, A), new Vertex(B2, -B, A),
+                    new Vertex(B2, A, -B), new Vertex(B2, A, B),
+                    new Vertex(-B2, B, A), new Vertex(-B2, -B, A),
+                    new Vertex(-B2, A, -B), new Vertex(-B2, A, B)
+            };
+            switch (dir){
+                case BIT_POS_X: rotate90(); break;
+                case BIT_POS_Z: rotate180(); break;
+                case BIT_NEG_X: rotate270(); break;
+            }
+        }
+
+
+        @Override
+        Triangle[] getTriangles() {
+            return new Triangle[]{
+                    makeTriangle(0, 2, 1),
+                    makeTriangle(3, 2, 0),
+                    makeTriangle(4, 5, 6),
+                    makeTriangle(6, 7, 4),
+                    makeTriangle(1, 2, 6),
+                    makeTriangle(6, 5, 1),
+                    makeTriangle(0, 7, 3),
+                    makeTriangle(4, 7, 0)
+            };
+        }
+    }
+
+    private static class Stairways extends Vertices {
+        Stairway up, down;
+
+        Stairways(int dir) {
+            up = new Stairway(dir, true);
+            down = new Stairway(dir, false);
+
+            vs = new Vertex[] {
+                    new Vertex(b, -e, b), new Vertex(b, -b, e),
+                    new Vertex(b, e, -b), new Vertex(b, b, -e),
+                    new Vertex(-b, -e, b), new Vertex(-b, -b, e),
+                    new Vertex(-b, e, -b), new Vertex(-b, b, -e)
+            };
+            switch (dir){
+                case BIT_POS_X: rotate90(); break;
+                case BIT_POS_Z: rotate180(); break;
+                case BIT_NEG_X: rotate270(); break;
+            }
+        }
+
+        @Override
+        void shift(Vec3i shift) {
+            super.shift(shift);
+            down.shift(shift);
+            up.shift(shift);
+        }
+
+        @Override
+        Triangle[] getTriangles() {
+            return new Triangle[]{
+                    up.makeTriangle(0, 2, 1),
+                    up.makeTriangle(3, 2, 0),
+                    up.makeTriangle(4, 5, 6),
+                    up.makeTriangle(6, 7, 4),
+                    up.makeTriangle(0, 7, 3),
+                    up.makeTriangle(4, 7, 0),
+                    down.makeTriangle(0, 2, 1),
+                    down.makeTriangle(3, 2, 0),
+                    down.makeTriangle(4, 5, 6),
+                    down.makeTriangle(6, 7, 4),
+                    down.makeTriangle(0, 7, 3),
+                    down.makeTriangle(4, 7, 0),
+                    makeTriangle(0, 2, 1),
+                    makeTriangle(3, 2, 0),
+                    makeTriangle(4, 5, 6),
+                    makeTriangle(6, 7, 4),
+                    makeTriangle(0, 1, 4),
+                    makeTriangle(5, 4, 1),
+                    makeTriangle(2, 3, 6),
+                    makeTriangle(3, 7, 6)
+            };
         }
     }
 
