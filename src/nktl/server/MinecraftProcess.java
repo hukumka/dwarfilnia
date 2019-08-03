@@ -2,14 +2,17 @@ package nktl.server;
 
 import nktl.server.commands.Command;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
 
 public class MinecraftProcess implements MinecraftRMIProcess{
     private BufferedWriter output;
     private Process process;
 
     public MinecraftProcess() throws IOException{
-        String command = "java -jar mcs_1.12.2.jar nogui";
+        String command = "java -jar server.jar nogui";
         System.out.println(command);
         process = Runtime.getRuntime().exec(command);
         output = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));

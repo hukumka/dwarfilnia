@@ -1,19 +1,16 @@
 package nktl.writer;
 
 import nktl.dwarf.DwarfCube;
-import nktl.dwarf.DwarfGen;
 import nktl.dwarf.DwarfMap;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
 import nktl.server.commands.TeleportPlayer;
-import nktl.writer.blocks.Corridor;
 import nktl.writer.blocks.DwarfBlock;
-import nktl.writer.blocks.Stairs;
-import nktl.writer.blocks.VerticalLadder;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Random;
 
 public class MapWriter {
     private Vec3i offset = null;
@@ -21,6 +18,7 @@ public class MapWriter {
     private String userPlayerName = null;
     private int sleepBetweenChunks = 500;
     private int sleepBetweenCubes = 70;
+    private Random random = new Random();
 
     public MapWriter setProcess(MinecraftRMIProcess process){
         this.process = process;
@@ -42,7 +40,8 @@ public class MapWriter {
         return this;
     }
 
-    public void writeMap(DwarfMap map) throws IOException {
+    public void writeMap(DwarfMap map, long seed) throws IOException {
+        random.setSeed(seed);
         try{
             HashMap<DwarfCube.CubeType, LinkedList<DwarfCube>> cubes = DwarfCube.separate(map.getCubes());
             LinkedList[] order = {
@@ -51,8 +50,7 @@ public class MapWriter {
                     cubes.get(DwarfCube.CubeType.COLLECTOR),
                     cubes.get(DwarfCube.CubeType.STAIRS),
             };
-            for(LinkedList t: order){
-                t = (LinkedList<DwarfCube>) t;
+            for(LinkedList<DwarfCube> t: order){
                 if(t != null){
                     ChuckMap m = new ChuckMap(t);
                     for (ChuckMap.Chunk c : m) {
@@ -78,7 +76,7 @@ public class MapWriter {
             Thread.sleep(sleepBetweenChunks);
         }
         for(DwarfCube c: chunk.list()){
-            DwarfBlock block = DwarfBlock.from_dwarf_cube(c);
+            DwarfBlock block = DwarfBlock.from_dwarf_cube(c, random);
             if(block != null){
                 block.placeAt(process, mapToWorld(c.position()));
 

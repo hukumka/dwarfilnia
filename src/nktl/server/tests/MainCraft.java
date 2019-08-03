@@ -12,7 +12,9 @@ import java.io.IOException;
 
 public class MainCraft extends Application {
 
-    private static String full_launch_command = "java -jar mcs_1.12.2.jar nogui";
+    private static String full_launch_command =
+            "java " + //-Duser.dir=\"D:\\Games\\Minecraft\\Creative server\" " +
+            "-jar server.jar nogui";
 
     private TextArea output_area = new TextArea();
     private TextField input_field = new TextField();
@@ -23,6 +25,7 @@ public class MainCraft extends Application {
 
     @Override
     public void init() {
+        //System.setProperty( "user.dir", "\"D:\\Games\\Minecraft\\Creative server\"" );
         try {
             minecraft = new MinecraftProcess(full_launch_command);
 

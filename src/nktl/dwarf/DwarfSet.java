@@ -143,4 +143,11 @@ public class DwarfSet {
         return minLength + add;
     }
 
+    public DwarfSet setLengths(int min, int max){
+        if (min <=0 || max <= 0) return this;
+        minLength = min;
+        lengthDelta = max - min + 1;
+        return this;
+    }
+
 }

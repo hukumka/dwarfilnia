@@ -6,9 +6,12 @@ import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
 import nktl.server.commands.BlockData;
 import nktl.server.commands.Fill;
+import nktl.server.commands.states.Facing;
+import nktl.server.commands.states.Half;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class BrokenStairs extends Stairs{
     double changeChance = 0.4;
@@ -17,6 +20,12 @@ public class BrokenStairs extends Stairs{
 
     boolean isUpper=false;
     boolean isLower=false;
+
+    private Random random;
+
+    public BrokenStairs(Random random) {
+        this.random = random;
+    }
 
     public BrokenStairs setUpper(boolean is){
         isUpper = is;
@@ -86,9 +95,8 @@ public class BrokenStairs extends Stairs{
                         offset.multIn(-1);
                         offset.x--;
                     }
-                    boolean upsideDown = (dy==2?isUpper:(!isUpper));
                     if(Math.random() < changeChance) {
-                        commands.add(addRandomGarbage(center.plus(offset), upsideDown));
+                        commands.add(addRandomGarbage(center.plus(offset)));
                     }
                 }
             }
@@ -96,18 +104,42 @@ public class BrokenStairs extends Stairs{
         return commands;
     }
 
-    private Fill addRandomGarbage(Vec3i pos, boolean upsideDown){
+    private Fill addRandomGarbage(Vec3i pos){
         double total = stairsChance + halfBlockChance;
         double roll = Math.random();
         if(roll < stairsChance/total){
             // stairs
-            int state = (upsideDown?4:0) + (int)(Math.random()*4);
-            return new Fill(pos, pos, "minecraft:stone_stairs")
-                    .dataValue(state);
+            return new Fill(pos, pos, randomStairs().addParam(randomHalf()).addParam(randomFacing()));
         }else{
             // half-block
-            return new Fill(pos, pos, "minecraft:stone_slab")
-                    .dataValue(3 + (upsideDown?8:0));
+            return new Fill(pos, pos, randomSlab().addParam(randomHalf()));
         }
+    }
+
+    private static String[] possibleMaterial = {
+            "cobblestone_",
+            "stone_brick_",
+            "stone_",
+            "mossy_stone_brick_",
+            "mossy_cobblestone_",
+            "andesite_"
+    };
+
+    private BlockData randomStairs() {
+        int ind = random.nextInt(possibleMaterial.length);
+        return new BlockData(possibleMaterial[ind]+"stairs");
+    }
+
+    private BlockData randomSlab() {
+        int ind = random.nextInt(possibleMaterial.length);
+        return new BlockData(possibleMaterial[ind]+"slab");
+    }
+
+    private Half randomHalf(){
+        return Half.values()[random.nextInt(Half.values().length)];
+    }
+
+    private Facing randomFacing() {
+        return Facing.values()[random.nextInt(Facing.values().length)];
     }
 }

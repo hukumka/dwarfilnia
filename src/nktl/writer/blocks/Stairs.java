@@ -18,6 +18,7 @@ public class Stairs implements DwarfBlock{
     Direction direction=Direction.EAST;
 
     public Stairs get_features(DwarfCube cube){
+
         if(cube.features().containsKey(DwarfCube.Feature.WAY)){
             int way = cube.features().get(DwarfCube.Feature.WAY);
             System.out.println(way);

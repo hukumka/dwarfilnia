@@ -49,8 +49,9 @@ public class Render extends ZRender {
             DwarfGen gen = new DwarfGen();
             gen.settings()
                     .setSeed(45825243)
-                    .setWayRatio(100, 50, 20, 10, 5, 1)
-                    .setDimensions(45, 45, 45);
+                    .setLengths(2, 5)
+                    .setWayRatio(100, 75, 50, 25, 5, 1)
+                    .setDimensions(11, 1, 11);
 
             DwarfMap map = gen.genMap();
             Vec3i main = map.graph().getNodes().next().data().position();

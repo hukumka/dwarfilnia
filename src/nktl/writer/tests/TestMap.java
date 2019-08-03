@@ -3,10 +3,8 @@ package nktl.writer.tests;
 import nktl.dwarf.DwarfGen;
 import nktl.dwarf.DwarfMap;
 import nktl.math.geom.Vec3i;
-import nktl.server.MinecraftRMIProcess;
 import nktl.writer.MapWriter;
 import nktl.writer.RMIClient;
-import nktl.writer.blocks.Corridor;
 
 
 public class TestMap {
@@ -16,16 +14,17 @@ public class TestMap {
 
             generator.settings()
                     .setSeed(45825243)
-                    .setWayRatio(100, 50, 20, 10, 5, 1)
-                    .setDimensions(11, 11, 11);
+                    .setLengths(2, 5)
+                    .setWayRatio(100, 75, 50, 25, 5, 1)
+                    .setDimensions(11, 1, 11);
             DwarfMap dm = generator.genMap();
 
             MapWriter writer = new MapWriter()
                     .setProcess(new RMIClient().getProcess())
                     .setUsedPlayer("hukumka")
-                    .setOffset(new Vec3i(-1000, 160, -800));
+                    .setOffset(new Vec3i(-2200, 63, 0));
 
-            writer.writeMap(dm);
+            writer.writeMap(dm, generator.settings().getSeed());
             /*
             RMIClient client = new RMIClient();
             MinecraftRMIProcess process = client.getProcess();
