@@ -1,5 +1,6 @@
 package nktl.server.commands.states;
 
+import nktl.math.geom.Direction;
 import nktl.server.commands.BlockParam;
 
 public enum Facing implements BlockParam {
@@ -16,5 +17,16 @@ public enum Facing implements BlockParam {
     }
 
     @Override
-    public String toString() { return "facing=" + this; }
+    public String getParamString() {
+        return "facing="+this;
+    }
+
+    public static Facing ofDirection(Direction dir) {
+        switch (dir) {
+            case EAST: return east;
+            case SOUTH: return south;
+            case WEST: return west;
+            case NORTH: default: return north;
+        }
+    }
 }

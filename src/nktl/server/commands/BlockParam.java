@@ -4,4 +4,6 @@ public interface BlockParam {
 
     BlockParam rotate90Y();
 
+    String getParamString();
+
 }
