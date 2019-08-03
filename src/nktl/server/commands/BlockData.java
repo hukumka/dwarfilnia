@@ -2,21 +2,15 @@ package nktl.server.commands;
 
 import java.util.ArrayList;
 
-interface State{
-    public String name();
-    public String value();
-    public State rotate90Y();
-}
-
 public class BlockData {
     String name;
-    ArrayList<State> params;
+    ArrayList<BlockParam> params;
 
     public BlockData(String name){
         this.name = name;
     }
 
-    public BlockData addParam(State param){
+    public BlockData addParam(BlockParam param){
         params.add(param);
         return this;
     }
@@ -28,10 +22,8 @@ public class BlockData {
             StringBuilder builder = new StringBuilder();
             builder.append(name);
             builder.append('{');
-            for(State param: params){
-                builder.append(param.name());
-                builder.append(": ");
-                builder.append(param.value());
+            for(BlockParam param: params){
+                builder.append(param.toString());
             }
             builder.append('}');
             return builder.toString();
