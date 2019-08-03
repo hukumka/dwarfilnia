@@ -9,5 +9,7 @@ public enum Half implements BlockParam {
     public Half rotate90Y() { return this; }
 
     @Override
-    public String toString() { return "facing=" + this; }
+    public String getParamString() {
+        return "half="+this;
+    }
 }

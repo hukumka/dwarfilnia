@@ -16,5 +16,7 @@ public enum Facing implements BlockParam {
     }
 
     @Override
-    public String toString() { return "facing=" + this; }
+    public String getParamString() {
+        return "facing="+this;
+    }
 }
