@@ -5,6 +5,7 @@ import nktl.dwarf.DwarfDirection;
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
+import nktl.server.commands.BlockData;
 import nktl.server.commands.Fill;
 
 import java.io.IOException;
@@ -26,31 +27,28 @@ public class Collector implements DwarfBlock{
         ArrayList<Fill> commands = new ArrayList<>();
         if(hasWater) {
             commands.add(
-                    new Fill(position, position.plus(4, 4, 3), "minecraft:water")
+                    new Fill(position, position.plus(4, 4, 3), new BlockData("minecraft:water"))
             );
             commands.add(
-                    new Fill(position, position.plus(3, 4, 4), "minecraft:air")
+                    new Fill(position, position.plus(3, 4, 4), new BlockData("minecraft:air"))
             );
         }else{
             commands.add(
-                    new Fill(position, position.plus(4, 4, 4), "minecraft:air")
+                    new Fill(position, position.plus(4, 4, 4), new BlockData("minecraft:air"))
             );
         }
+        BlockData andesite = new BlockData("minecraft:polished_andesite");
         commands.add(
-                new Fill(position.plus(0, 0, 0), position.plus(0, 4, 0), "minecraft:stone")
-                        .dataValue(6)
+                new Fill(position.plus(0, 0, 0), position.plus(0, 4, 0), andesite)
         );
         commands.add(
-                new Fill(position.plus(4, 0, 0), position.plus(4, 4, 0), "minecraft:stone")
-                        .dataValue(6)
+                new Fill(position.plus(4, 0, 0), position.plus(4, 4, 0), andesite)
         );
         commands.add(
-                new Fill(position.plus(0, 0, 4), position.plus(0, 4, 4), "minecraft:stone")
-                        .dataValue(6)
+                new Fill(position.plus(0, 0, 4), position.plus(0, 4, 4), andesite)
         );
         commands.add(
-                new Fill(position.plus(4, 0, 4), position.plus(4, 4, 4), "minecraft:stone")
-                        .dataValue(6)
+                new Fill(position.plus(4, 0, 4), position.plus(4, 4, 4), andesite)
         );
         // create ladders
         commands.add(
@@ -80,22 +78,22 @@ public class Collector implements DwarfBlock{
 
         if((sewers&DwarfDirection.BIT_POS_X)>0){
             commands.add(
-                    new Fill(position.plus(4, 0, 2), position.plus(4, 4, 2), "minecraft:air")
+                    new Fill(position.plus(4, 0, 2), position.plus(4, 4, 2), new BlockData("minecraft:air"))
             );
         }
         if((sewers&DwarfDirection.BIT_NEG_X)>0){
             commands.add(
-                    new Fill(position.plus(0, 0, 2), position.plus(0, 4, 2), "minecraft:air")
+                    new Fill(position.plus(0, 0, 2), position.plus(0, 4, 2), new BlockData("minecraft:air"))
             );
         }
         if((sewers&DwarfDirection.BIT_NEG_Y)>0){
             commands.add(
-                    new Fill(position.plus(2, 0, 0), position.plus(2, 4, 0), "minecraft:air")
+                    new Fill(position.plus(2, 0, 0), position.plus(2, 4, 0), new BlockData("minecraft:air"))
             );
         }
         if((sewers&DwarfDirection.BIT_POS_Y)>0){
             commands.add(
-                    new Fill(position.plus(2, 0, 4), position.plus(2, 4, 4), "minecraft:air")
+                    new Fill(position.plus(2, 0, 4), position.plus(2, 4, 4), new BlockData("minecraft:air"))
             );
         }
 

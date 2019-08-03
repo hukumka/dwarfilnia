@@ -5,6 +5,7 @@ import nktl.dwarf.DwarfDirection;
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
+import nktl.server.commands.BlockData;
 import nktl.server.commands.Fill;
 
 import java.io.IOException;
@@ -45,15 +46,15 @@ public class Corridor implements DwarfBlock{
 
         // fill all with air
         commands.add(
-                new Fill(position, position.plus(4, 4, 4), "minecraft:air")
+                new Fill(position, position.plus(4, 4, 4), new BlockData("minecraft:air"))
         );
         // create floor
         commands.add(
-                new Fill(position, position.plus(4, 0, 4), "minecraft:stonebrick")
+                new Fill(position, position.plus(4, 0, 4), new BlockData("minecraft:stonebrick"))
         );
         // create ceiling
         commands.add(
-                new Fill(position.plus(0, 4, 0), position.plus(4, 4, 4), "minecraft:stonebrick")
+                new Fill(position.plus(0, 4, 0), position.plus(4, 4, 4), new BlockData("minecraft:stonebrick"))
         );
 
         Vec3i center = position.plus(2, 2, 2);
@@ -62,22 +63,22 @@ public class Corridor implements DwarfBlock{
 
         if((sewers&DwarfDirection.BIT_POS_X)>0){
             commands.add(
-                    new Fill(position.plus(2, 0, 2), position.plus(4, 0, 2), "minecraft:air")
+                    new Fill(position.plus(2, 0, 2), position.plus(4, 0, 2), new BlockData("minecraft:air"))
             );
         }
         if((sewers&DwarfDirection.BIT_NEG_X)>0){
             commands.add(
-                    new Fill(position.plus(2, 0, 2), position.plus(0, 0, 2), "minecraft:air")
+                    new Fill(position.plus(2, 0, 2), position.plus(0, 0, 2), new BlockData("minecraft:air"))
             );
         }
         if((sewers&DwarfDirection.BIT_NEG_Y)>0){
             commands.add(
-                    new Fill(position.plus(2, 0, 2), position.plus(2, 0, 0), "minecraft:air")
+                    new Fill(position.plus(2, 0, 2), position.plus(2, 0, 0), new BlockData("minecraft:air"))
             );
         }
         if((sewers&DwarfDirection.BIT_POS_Y)>0){
             commands.add(
-                    new Fill(position.plus(2, 0, 2), position.plus(2, 0, 4), "minecraft:air")
+                    new Fill(position.plus(2, 0, 2), position.plus(2, 0, 4), new BlockData("minecraft:air"))
             );
         }
 

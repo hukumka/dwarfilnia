@@ -6,7 +6,10 @@ import nktl.dwarf.DwarfDirection;
 import nktl.math.geom.Direction;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
+import nktl.server.commands.BlockData;
 import nktl.server.commands.Fill;
+import nktl.server.commands.states.Facing;
+import nktl.server.commands.states.Half;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,56 +48,54 @@ public class Stairs implements DwarfBlock{
         ArrayList<Fill> commands = new ArrayList<>();
         // create air
         commands.add(
-                new Fill(pos.plus(0, 0, 1), pos.plus(4, 4, 3), "minecraft:air")
+                new Fill(pos.plus(0, 0, 1), pos.plus(4, 4, 3), new BlockData("minecraft:air"))
         );
+        BlockData andesite = new BlockData("minecraft:polished_andesite");
+        BlockData stairBottom = new BlockData("minecraft:stone_brick_stairs")
+                .addParam(Facing.east)
+                .addParam(Half.bottom);
+        BlockData stairTop = new BlockData("minecraft:stone_brick_stairs")
+                .addParam(Facing.west)
+                .addParam(Half.top);
         // create stairs
         for(int i=0; i<4; ++i){
             commands.add(
-                    new Fill(pos.plus(i, i+1, 1), pos.plus(i, i+1, 3), "minecraft:stone_brick_stairs")
-                            .dataValue(0)
+                    new Fill(pos.plus(i, i+1, 1), pos.plus(i, i+1, 3), stairBottom)
             );
             commands.add(
-                    new Fill(pos.plus(i, i, 1), pos.plus(i, i, 3), "minecraft:stone_brick_stairs")
-                            .dataValue(5)
+                    new Fill(pos.plus(i, i, 1), pos.plus(i, i, 3), stairTop)
             );
         }
         commands.add(
-                new Fill(pos.plus(4, 4, 1), pos.plus(4, 4, 3), "minecraft:stone_brick_stairs")
-                        .dataValue(5)
+                new Fill(pos.plus(4, 4, 1), pos.plus(4, 4, 3), stairTop)
         );
         commands.add(
-                new Fill(pos.plus(4, 0, 1), pos.plus(4, 0, 3), "minecraft:stone_brick_stairs")
-                        .dataValue(0)
+                new Fill(pos.plus(4, 0, 1), pos.plus(4, 0, 3), stairBottom)
         );
         commands.add(
-                new Fill(pos.plus(-1, 4, 1), pos.plus(-1, 4, 3), "minecraft:stone_brick_stairs")
-                        .dataValue(5)
+                new Fill(pos.plus(-1, 4, 1), pos.plus(-1, 4, 3), stairTop)
         );
         // create walls
         commands.add(
-                new Fill(pos, pos.plus(4, 4, 0), "minecraft:stonebrick")
+                new Fill(pos, pos.plus(4, 4, 0), new BlockData("minecraft:stonebrick"))
                     .replace("minecraft:air")
         );
         commands.add(
-                new Fill(pos.plus(0, 0, 4), pos.plus(4, 4, 4), "minecraft:stonebrick")
+                new Fill(pos.plus(0, 0, 4), pos.plus(4, 4, 4), new BlockData("minecraft:stonebrick"))
                         .replace("minecraft:air")
         );
         // create pillars
         commands.add(
-                new Fill(pos.plus(-1, 0, 0), pos.plus(-1, 4, 0), "minecraft:stone")
-                    .dataValue(6)
+                new Fill(pos.plus(-1, 0, 0), pos.plus(-1, 4, 0), andesite)
         );
         commands.add(
-                new Fill(pos.plus(-1, 0, 4), pos.plus(-1, 4, 4), "minecraft:stone")
-                        .dataValue(6)
+                new Fill(pos.plus(-1, 0, 4), pos.plus(-1, 4, 4), andesite)
         );
         commands.add(
-                new Fill(pos.plus(5, 0, 0), pos.plus(5, 4, 0), "minecraft:stone")
-                        .dataValue(6)
+                new Fill(pos.plus(5, 0, 0), pos.plus(5, 4, 0), andesite)
         );
         commands.add(
-                new Fill(pos.plus(5, 0, 4), pos.plus(5, 4, 4), "minecraft:stone")
-                        .dataValue(6)
+                new Fill(pos.plus(5, 0, 4), pos.plus(5, 4, 4), andesite)
         );
 
         Vec3i center = pos.plus(2, 2, 2);
