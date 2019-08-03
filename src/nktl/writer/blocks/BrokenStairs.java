@@ -8,6 +8,7 @@ import nktl.server.commands.BlockData;
 import nktl.server.commands.Fill;
 import nktl.server.commands.states.Facing;
 import nktl.server.commands.states.Half;
+import nktl.server.commands.states.SlabType;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -112,7 +113,7 @@ public class BrokenStairs extends Stairs{
             return new Fill(pos, pos, randomStairs().addParam(randomHalf()).addParam(randomFacing()));
         }else{
             // half-block
-            return new Fill(pos, pos, randomSlab().addParam(randomHalf()));
+            return new Fill(pos, pos, randomSlab().addParam(randomSlabType()));
         }
     }
 
@@ -127,16 +128,20 @@ public class BrokenStairs extends Stairs{
 
     private BlockData randomStairs() {
         int ind = random.nextInt(possibleMaterial.length);
-        return new BlockData(possibleMaterial[ind]+"stairs");
+        return new BlockData("minecraft:" + possibleMaterial[ind]+"stairs");
     }
 
     private BlockData randomSlab() {
         int ind = random.nextInt(possibleMaterial.length);
-        return new BlockData(possibleMaterial[ind]+"slab");
+        return new BlockData("minecraft:" + possibleMaterial[ind]+"slab");
     }
 
     private Half randomHalf(){
         return Half.values()[random.nextInt(Half.values().length)];
+    }
+
+    private SlabType randomSlabType(){
+        return SlabType.values()[random.nextInt(SlabType.values().length)];
     }
 
     private Facing randomFacing() {

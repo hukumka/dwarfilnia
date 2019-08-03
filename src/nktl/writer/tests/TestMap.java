@@ -16,13 +16,13 @@ public class TestMap {
                     .setSeed(45825243)
                     .setLengths(2, 5)
                     .setWayRatio(100, 75, 50, 25, 5, 1)
-                    .setDimensions(11, 1, 11);
+                    .setDimensions(11, 11, 11);
             DwarfMap dm = generator.genMap();
 
             MapWriter writer = new MapWriter()
                     .setProcess(new RMIClient().getProcess())
                     .setUsedPlayer("hukumka")
-                    .setOffset(new Vec3i(-2200, 63, 0));
+                    .setOffset(new Vec3i(-200, 63-10*5, -20));
 
             writer.writeMap(dm, generator.settings().getSeed());
             /*

@@ -37,9 +37,10 @@ public class MinecraftProcess implements MinecraftRMIProcess{
 
     public void write(String command) throws IOException{
         if(is_running()) {
+            System.out.println(command);
             output.write(command + "\n");
             output.flush();
-        }
+        } else System.out.println("NOT IS RUNNING");
     }
 
     public void execute(Command command) throws IOException{

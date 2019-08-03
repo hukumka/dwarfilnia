@@ -45,7 +45,7 @@ public class VerticalLadder implements DwarfBlock {
         new Fill(
                 position,
                 position.plus(4, 4, 4),
-                new BlockData("minecraft:stonebrick")
+                new BlockData("minecraft:stone_bricks")
         ).runIn(process);
         // make space in the middle
         new Fill(

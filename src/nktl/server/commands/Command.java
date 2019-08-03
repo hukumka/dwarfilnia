@@ -7,7 +7,7 @@ import java.io.IOException;
 public abstract class Command {
     public abstract String toCommandString();
 
-    public void runIn(MinecraftRMIProcess process) throws IOException {
+    public final void runIn(MinecraftRMIProcess process) throws IOException {
         process.write(toCommandString());
     }
 }

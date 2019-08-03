@@ -50,11 +50,11 @@ public class Corridor implements DwarfBlock{
         );
         // create floor
         commands.add(
-                new Fill(position, position.plus(4, 0, 4), new BlockData("minecraft:stonebrick"))
+                new Fill(position, position.plus(4, 0, 4), new BlockData("minecraft:stone_bricks"))
         );
         // create ceiling
         commands.add(
-                new Fill(position.plus(0, 4, 0), position.plus(4, 4, 4), new BlockData("minecraft:stonebrick"))
+                new Fill(position.plus(0, 4, 0), position.plus(4, 4, 4), new BlockData("minecraft:stone_bricks"))
         );
 
         Vec3i center = position.plus(2, 2, 2);

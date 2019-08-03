@@ -51,7 +51,7 @@ public class Render extends ZRender {
                     .setSeed(45825243)
                     .setLengths(2, 5)
                     .setWayRatio(100, 75, 50, 25, 5, 1)
-                    .setDimensions(11, 1, 11);
+                    .setDimensions(11, 11, 11);
 
             DwarfMap map = gen.genMap();
             Vec3i main = map.graph().getNodes().next().data().position();

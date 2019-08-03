@@ -78,11 +78,11 @@ public class Stairs implements DwarfBlock{
         );
         // create walls
         commands.add(
-                new Fill(pos, pos.plus(4, 4, 0), new BlockData("minecraft:stonebrick"))
+                new Fill(pos, pos.plus(4, 4, 0), new BlockData("minecraft:stone_bricks"))
                     .replace("minecraft:air")
         );
         commands.add(
-                new Fill(pos.plus(0, 0, 4), pos.plus(4, 4, 4), new BlockData("minecraft:stonebrick"))
+                new Fill(pos.plus(0, 0, 4), pos.plus(4, 4, 4), new BlockData("minecraft:stone_bricks"))
                         .replace("minecraft:air")
         );
         // create pillars

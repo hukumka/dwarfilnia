@@ -35,6 +35,6 @@ public class Fill extends Command{
 
     @Override
     public String toCommandString() {
-        return String.format("fill %d %d %d %d %d %d %s %d %s", from.x, from.y, from.z, to.x, to.y, to.z, block.toString(), modifier);
+        return String.format("fill %d %d %d %d %d %d %s %s", from.x, from.y, from.z, to.x, to.y, to.z, block.command(), modifier).trim();
     }
 }
