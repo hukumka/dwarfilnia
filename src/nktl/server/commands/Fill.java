@@ -6,11 +6,10 @@ public class Fill extends Command{
     private Vec3i from;
     private Vec3i to;
 
-    private String block;
-    private int additional_data = 0;
+    private BlockData block;
     private String modifier = "";
 
-    public Fill(Vec3i from, Vec3i to, String block){
+    public Fill(Vec3i from, Vec3i to, BlockData block){
         this.from = from;
         this.to = to;
         this.block = block;
@@ -18,11 +17,6 @@ public class Fill extends Command{
 
     public Fill replace(String replace){
         this.modifier = "replace " + replace;
-        return this;
-    }
-
-    public Fill dataValue(int data){
-        this.additional_data = data;
         return this;
     }
 
@@ -34,32 +28,13 @@ public class Fill extends Command{
     public Fill rotate90Y(int x, int z){
         from = from.rotateAroundY90(x, z);
         to = to.rotateAroundY90(x, z);
-        if(block.equals("minecraft:stone_brick_stairs")){
-            int direction = additional_data & 3;
-            int new_direction = 0;
-            switch (direction){
-                case 0:
-                    new_direction = 3;
-                    break;
-                case 1:
-                    new_direction = 2;
-                    break;
-                case 2:
-                    new_direction = 0;
-                    break;
-                case 3:
-                    new_direction = 1;
-                    break;
-            }
-            // replace direction with new direction
-            additional_data = (additional_data ^ direction) | new_direction;
-        }
+        block = block.rotate90Y();
         return this;
     }
 
 
     @Override
     public String toCommandString() {
-        return String.format("fill %d %d %d %d %d %d %s %d %s", from.x, from.y, from.z, to.x, to.y, to.z, block, additional_data, modifier);
+        return String.format("fill %d %d %d %d %d %d %s %d %s", from.x, from.y, from.z, to.x, to.y, to.z, block.toString(), modifier);
     }
 }

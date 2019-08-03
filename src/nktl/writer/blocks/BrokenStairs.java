@@ -4,6 +4,7 @@ import nktl.dwarf.DwarfCube;
 import nktl.dwarf.DwarfDirection;
 import nktl.math.geom.Vec3i;
 import nktl.server.MinecraftRMIProcess;
+import nktl.server.commands.BlockData;
 import nktl.server.commands.Fill;
 
 import java.io.IOException;
@@ -66,12 +67,12 @@ public class BrokenStairs extends Stairs{
                 to_offset.multIn(-1);
                 to_offset.x--;
             }
-            commands.add(new Fill(center.plus(to_offset), center.plus(from_offset), "minecraft:cobblestone"));
+            commands.add(new Fill(center.plus(to_offset), center.plus(from_offset), new BlockData("minecraft:cobblestone")));
         }
         if(isUpper){
-            commands.add(new Fill(center.plus(1, 2, 1), center.plus(-1, 2, -1), "minecraft:cobblestone"));
+            commands.add(new Fill(center.plus(1, 2, 1), center.plus(-1, 2, -1), new BlockData("minecraft:cobblestone")));
         }else{
-            commands.add(new Fill(center.plus(1, -2, 1), center.plus(-1, -2, -1), "minecraft:cobblestone"));
+            commands.add(new Fill(center.plus(1, -2, 1), center.plus(-1, -2, -1), new BlockData("minecraft:cobblestone")));
         }
         // add random garbage
         for(int dx=-2; dx<0; ++dx){
