@@ -118,7 +118,7 @@ public class VerticalLadder implements DwarfBlock {
                 position.plus(2, start, 2),
                 position.plus(2, end, 2),
                 new BlockData("minecraft:ladder")
-                    .addParam(Facing.fromDirection(direction))
+                    .addParam(Facing.ofDirection(direction))
         )
                 .runIn(process);
 

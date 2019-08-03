@@ -23,7 +23,7 @@ public class BlockData {
             builder.append(name);
             builder.append('[');
             for(BlockParam param: params){
-                builder.append(param.toString());
+                builder.append(param.getParamString());
             }
             builder.append(']');
             return builder.toString();

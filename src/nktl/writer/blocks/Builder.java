@@ -10,7 +10,7 @@ import nktl.server.commands.states.Half;
 public class Builder {
     public static Fill createStairs(Vec3i from, Vec3i to, Direction direction, boolean upsideDown){
         BlockData data = new BlockData("minecraft:stone_brick_stairs")
-                .addParam(Facing.from_direction(direction))
+                .addParam(Facing.ofDirection(direction))
                 .addParam(upsideDown? Half.top: Half.bottom);
 
         return new Fill(from, to, data);
