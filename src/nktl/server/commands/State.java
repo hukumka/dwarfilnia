@@ -2,9 +2,11 @@ package nktl.server.commands;
 
 public interface State {
 
+    String name();
+    String value();
+    Facing rotate90Y();
 
-
-    enum Facing {
+    enum Facing implements State {
         north, south, east, west;
 
         public Facing rotate90Y() {
