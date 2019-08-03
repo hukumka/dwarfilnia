@@ -21,11 +21,11 @@ public class BlockData {
         }else{
             StringBuilder builder = new StringBuilder();
             builder.append(name);
-            builder.append('{');
+            builder.append('[');
             for(BlockParam param: params){
                 builder.append(param.toString());
             }
-            builder.append('}');
+            builder.append(']');
             return builder.toString();
         }
     }
